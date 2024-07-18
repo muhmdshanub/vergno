@@ -1,0 +1,663 @@
+import React,{useState, useEffect, useRef} from 'react';
+import PropTypes from 'prop-types';
+import { Card, CardHeader, CardContent, CardActions, Avatar, AppBar, Toolbar, Typography, IconButton, Box,  Button, Modal,Menu, MenuItem, FormControl, Select,Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, TextField } from '@mui/material';
+import { styled, ThemeProvider, useTheme } from '@mui/system'; // Import ThemeProvider
+import CloseIcon from '@mui/icons-material/Close';
+import {MoreVert, HelpOutline, Tag, Favorite, Share, CheckCircle, Comment,} from '@mui/icons-material'
+import EnlargedImagePreview from './EnlargedImagePreview';
+import { useSelector } from 'react-redux';
+import SingleAnswer from './SingleAnswer.jsx';
+import SingleCommentQuery from './SingleCommentQuery.jsx';
+import { useReportPostMutation } from '../../slices/api_slices/allPostsApiSlice.js';
+import { useQueryCommentMutation } from '../../slices/api_slices/allCommentsApiSlice.js';
+import { useCreateAnswerMutation } from '../../slices/api_slices/answersApiSlice.js';
+import { useGetAllCommentsForQueryQuery } from '../../slices/api_slices/allCommentsApiSlice.js';
+import { useGetAllAnswersForQueryQuery } from '../../slices/api_slices/answersApiSlice.js';
+import InfiniteScroll from 'react-infinite-scroll-component';
+import CommentLoading from '../CommentLoading.jsx';
+
+const StyledModal = styled(Modal)(({ theme }) => ({ // Use destructuring to access the theme
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius:'20px',
+       
+  }));
+
+  const PostCard = styled(Card)(({ theme }) => ({
+    marginTop:theme.spacing(2),
+    marginBottom: theme.spacing(2),
+    width: '100%',
+    color: '#000000',
+    padding: '0px',
+    backgroundColor: 'rgba(255, 255, 255, 0.65)', // Semi-transparent background
+    backdropFilter: 'blur(6px) saturate(200%)',
+    WebkitBackdropFilter: 'blur(6px) saturate(200%)', // For Safari support
+    border: '1px solid rgba(209, 213, 219, 0.6)', // Semi-transparent border
+    boxShadow: theme.shadows[3],
+    transition: 'background-color 0.3s ease, border 0.3s ease, box-shadow 0.3s ease', // Smooth transition
+    '&:hover': {
+      backgroundColor: 'rgba(255, 255, 255, 0.75)', // Slightly more opaque background
+      border: '1px solid rgba(209, 213, 219, 0.7)', // Slightly more opaque border
+      boxShadow: theme.shadows[6], // Increase box shadow on hover
+    },
+  }));
+  
+  const PostContent = styled(CardContent)(({ theme }) => ({
+    paddingBottom: theme.spacing(2),
+  }));
+  
+  const ImageContainer = styled(Box)({
+      width: '100%',
+      height: '200px',
+      backgroundColor: 'black',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginTop: '10px',
+      marginBottom: '10px',
+      position:"relative",
+    });
+    
+    const ImagePreview = styled('img')({
+      maxWidth: '100%',
+      maxHeight: '100%',
+      objectFit: 'contain',
+    });
+  
+  
+  const PostActions = styled(CardActions)(({ theme }) => ({
+    justifyContent: 'space-between',
+    padding: `0 ${theme.spacing(2)}px ${theme.spacing(2)}px`,
+  }));
+
+
+  const CommentContainerCard = styled(Card)(({ theme }) =>({
+    alignItems: 'center', 
+    paddingTop: '10px', 
+    boxShadow: 3,  
+    marginBottom: '10px',
+    backgroundColor: 'rgba(255, 255, 255, 0.65)', // Semi-transparent background
+    backdropFilter: 'blur(6px) saturate(200%)',
+    WebkitBackdropFilter: 'blur(6px) saturate(200%)', // For Safari support
+    border: '1px solid rgba(209, 213, 219, 0.6)', // Semi-transparent border
+    transition: 'background-color 0.3s ease, border 0.3s ease, box-shadow 0.3s ease', // Smooth transition
+
+  }))
+
+
+
+
+const EnlargedQuery = React.memo(({ open, onClose, post, relativeTime, isLiked, likeCount, handleLike, handleUnlike, setErrorFlag, setCommentCount, setAnswerCount, followStatus, handleFollow, navigateToOtherUserProfile}) => {
+
+  const theme = useTheme();
+  const {userInfo} = useSelector(state => state.userAuth)
+  const {fallbackImage} = useSelector(state => state.fallbackImage)
+
+  const [imageOpen, setImageOpen] = useState(false);
+  const [selectType, setSelectType] = useState("comments");
+
+  const handleImageOpen = () => setImageOpen(true); 
+  const handleImageClose = () => setImageOpen(false); 
+
+  const newCommentRef = useRef(null);
+  const newAnswerRef = useRef(null);
+
+  const handleSelctType = (e) => {
+      setSelectType(e.target.value)
+  }
+
+  const [reportPost] = useReportPostMutation();
+
+  const [commentContent, setCommentContent] = useState('');
+  const [queryComment] = useQueryCommentMutation();
+  const [createAnswer] = useCreateAnswerMutation();
+
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [openMenu, setOpenMenu] = useState(false);
+  const [openDialog, setOpenDialog] = useState(false);
+  const [reason, setReason] = useState('');
+
+
+  const handleOpenDialog = () => {
+      setOpenDialog(true);
+      handleCloseMenu(); // Close the menu when opening the dialog
+    };
+
+    const handleCloseDialog = () => {
+      setOpenDialog(false);
+      setReason(''); // Reset reason when closing the dialog
+      setErrorFlag('')
+    };
+
+
+
+const handleClickMenu = (event) => {
+  setAnchorEl(event.currentTarget);
+  setOpenMenu(true);
+};
+
+const handleCloseMenu = () => {
+  setAnchorEl(null);
+  setOpenMenu(false);
+};
+
+const handleSubmitReport = async () => {
+  if (reason.trim() === '' || reason.length > 100) {
+    setErrorFlag('Reason must be provided and less than 100 characters.');
+    return;
+  }
+
+  try {
+    await reportPost({
+      reason,
+      post_type: 'query',
+      post_source: 'user_profile',
+      post_id: post._id
+    }).unwrap();
+    handleCloseDialog(); // Close the dialog after submitting the report
+  } catch (err) {
+    console.error('Failed to report post:', err);
+    setErrorFlag('Failed to report post. Please try again.');
+  }
+};
+
+
+
+const handleCommentChange = (event) => {
+  setCommentContent(event.target.value);
+};
+
+const handleCommentSubmit = async () => {
+  // Validate comment content
+  if (typeof commentContent !== 'string' || commentContent.trim().length === 0 || commentContent?.length > 500) {
+    setErrorFlag("invalid comment format.")
+    return;
+  }
+
+  try {
+    // Call the queryComment mutation
+    const response = await queryComment({ comment_content: commentContent, parent_query_id: post._id }).unwrap();
+    console.log('Comment added successfully:', response);
+    setCommentContent(''); // Clear the input field after successful submission
+    setCommentCount(prev => prev + 1)
+
+    // Update the comments state with the new comment at the beginning
+    setComments(prevComments => {
+      const newComments = [response.comment, ...prevComments];
+      // Use setTimeout to ensure the DOM is updated before scrolling
+      setTimeout(() => {
+        if (newCommentRef.current) {
+          newCommentRef.current.scrollIntoView({ behavior: 'smooth' });
+        }
+      }, 100);
+      return newComments;
+    });
+  } catch (error) {
+    console.error('Failed to add comment:', error);
+    setErrorFlag('Failed to add comment:', JSON.stringify(error))
+  }
+};
+
+
+
+const handleAnswerSubmit = async() => {
+  // Validate comment content
+  if (typeof commentContent !== 'string' || commentContent.trim().length === 0 || commentContent?.length > 500) {
+    setErrorFlag("invalid answer format.")
+    return;
+  }
+
+  try {
+    // Call the queryComment mutation
+    const response = await createAnswer({ answer_content: commentContent, parent_query_id: post._id }).unwrap();
+    console.log('Answer added successfully:', response);
+    setCommentContent(''); // Clear the input field after successful submission
+    setAnswerCount(prev => prev + 1)
+    // Update the comments state with the new comment at the beginning
+    setAnswers(prevAnswers => {
+      const newAnswers = [response.answer, ...prevAnswers];
+      // Use setTimeout to ensure the DOM is updated before scrolling
+      setTimeout(() => {
+        if (newAnswerRef.current) {
+          newAnswerRef.current.scrollIntoView({ behavior: 'smooth' });
+        }
+      }, 100);
+      return newAnswers;
+    });
+  } catch (error) {
+    console.error('Failed to add answer:', error);
+    setErrorFlag('Failed to add answer:', JSON.stringify(error))
+  }
+};
+
+//fetching comments all
+
+const [comments, setComments] = useState([]);
+const [tempComments, setTempComments] = useState([]);
+const [commentsPage, setCommentsPage] = useState(1);
+const [hasMoreComments, setHasMoreComments] = useState(true);
+
+const { data : commentsData, error : commentsError, isLoading : isCommentsLoading, isSuccess : isCommentsSuccess,isError : isCommentsError, refetch : refetchComments } = useGetAllCommentsForQueryQuery(
+  { query_id : post._id, page : commentsPage, limit : '10' },
+  {refetchOnMountOrArgChange: true, }
+);
+
+useEffect(() => {
+  if (commentsData && isCommentsSuccess === true) {
+    if (commentsPage === 1) {
+      
+      setComments(commentsData?.comments || []);
+      setCommentsPage((prevPage) => prevPage + 1);
+      refetchComments();
+    } else {
+      setTempComments(commentsData?.comments || []);
+    }
+    setHasMoreComments((commentsData?.comments || []).length > 0);
+  }
+  
+}, [ commentsData, refetchComments]);
+
+useEffect(()=>{
+  if (commentsError) {
+    console.error('Error fetching comments:', commentsError);
+    setErrorFlag(JSON.stringify(commentsError?.data?.message || commentsError?.message) || 'Error fetching comments');
+  }
+}, [isCommentsError])
+
+
+
+
+
+const fetchMoreComments = () =>{
+   
+    setComments(prevComments => [...prevComments, ...tempComments]);
+    if(!isCommentsLoading){
+      setCommentsPage(prevPage => prevPage + 1);
+      refetchComments();
+    }
+    
+}
+
+
+
+const handleRemoveComment = (commentId) => {
+  setComments(prevComments => prevComments.filter(comment => comment._id !== commentId));
+  setCommentCount(prev => prev - 1)
+};
+
+
+
+
+//fetching answers all
+
+const [answers, setAnswers] = useState([]);
+const [tempAnswers, setTempAnswers] = useState([]);
+const [answersPage, setAnswersPage] = useState(1);
+const [hasMoreAnswers, setHasMoreAnswers] = useState(true);
+
+const { data : answersData, error : answersError, isLoading : isAnswersLoading, isSuccess : isAnswersSuccess,isError : isAnswersError, refetch : refetchAnswers } = useGetAllAnswersForQueryQuery(
+  { query_id : post._id, page : answersPage, limit : '10' },
+  {refetchOnMountOrArgChange: true, }
+);
+
+useEffect(() => {
+  if (answersData && isAnswersSuccess === true) {
+
+    
+
+    if (answersPage === 1) {
+      
+      setAnswers(answersData?.answers || []);
+      setAnswersPage((prevPage) => prevPage + 1);
+      refetchAnswers();
+    } else {
+      setTempAnswers(answersData?.answers || []);
+    }
+    setHasMoreAnswers((answersData?.answers || []).length > 0);
+  }
+  
+}, [ answersData, refetchAnswers]);
+
+useEffect(()=>{
+  if (answersError) {answerssole.error('Error fetching answers:', answersError);
+    setErrorFlag(JSON.stringify(answersError?.data?.message || answersError?.message) || 'Error fetching answers');
+  }
+}, [isAnswersError])
+
+
+
+
+
+const fetchMoreAnswers = () =>{
+   
+    setAnswers(prevAnswers => [...prevAnswers, ...tempAnswers]);
+    if(!isAnswersLoading){
+      setAnswersPage(prevPage => prevPage + 1);
+      refetchAnswers();
+    }
+    
+}
+
+
+
+const handleRemoveAnswers = (answerId) => {
+  setAnswers(prevAnswers => prevAnswers.filter(answer => answer._id !== answerId));
+  setAnswerCount(prev => prev - 1)
+};
+
+
+
+
+
+
+  return (
+    <ThemeProvider theme={theme}> {/* Wrap your components with ThemeProvider */}
+      <StyledModal open={open} onClose={onClose} sx={{minWidth: 'fit-content' }}  >
+        
+          <div  style={{backgroundImage: 'linear-gradient(-45deg, #FFC796 0%, #FF6B95 100%)', width:'500px', position:'relative', borderRadius:'20px'}}>
+          <AppBar position="sticky" style={{borderRadius:"10px 10px 0px 0px", backgroundColor: 'rgba(0, 0, 0, 0.8)',backdropFilter: 'blur(5px) saturate(150%)',WebkitBackdropFilter: 'blur(5px) saturate(150%)',}}>
+              <Toolbar>
+                <Typography variant="h6" component="div" sx={{ flexGrow: 1 , color:'#ffffff'}}>
+                  {post?.user?.name}'s Query
+                </Typography>
+                <IconButton edge="end" color="inherit" aria-label="close" onClick={onClose} sx={{color:'#ffffff'}}>
+                  <CloseIcon />
+                </IconButton>
+              </Toolbar>
+          </AppBar>
+
+          <div style={{width:"100%", margin:'0', maxHeight:'60vh', overflowY:'auto', }} id="commentsModal">
+                  <PostCard>
+                              <CardHeader
+                                  avatar={<Avatar src={post?.user?.image?.url || post.googleProfilePicture || fallbackImage} onClick={navigateToOtherUserProfile} />}
+                                  title={
+                                      <Box display="flex" alignItems="center">
+                                      <Typography variant="subtitle1" onClick={navigateToOtherUserProfile} sx={{cursor:'pointer'}}>
+                                          {post?.user?.name}
+                                      </Typography>
+                                      <Typography variant="body2" component="span" sx={{ marginLeft: 1 }}>
+                                          <span style={{ color: 'black' }}>•</span> 
+                                          {followStatus !== 'notFollowing' && (<span style={{ color: followStatus === 'following' ? 'blue' : 'black', cursor: 'pointer' }}>
+                                                {followStatus}
+                                            </span>)}
+
+                                            {followStatus === 'notFollowing' && (<span style={{ color: 'red', cursor: 'pointer' }} onClick={handleFollow}>
+                                                Follow
+                                            </span>)}
+                                      </Typography>
+                                      </Box>
+                                  }
+                                  subheader={relativeTime}
+                                  action={
+                                  <>
+                                      <IconButton aria-label="settings" onClick={handleClickMenu}>
+                                          <MoreVert />
+                                      </IconButton>
+                                      <Menu
+                                          anchorEl={anchorEl}
+                                          open={openMenu}
+                                          onClose={handleCloseMenu}
+                                          anchorOrigin={{
+                                          vertical: 'top',
+                                          horizontal: 'right',
+                                          }}
+                                          transformOrigin={{
+                                          vertical: 'top',
+                                          horizontal: 'right',
+                                          }}
+                                      >
+                                          <MenuItem onClick={handleOpenDialog}>Report Query</MenuItem>
+                                      </Menu>
+
+                                      <Dialog open={openDialog} onClose={handleCloseDialog}>
+                                          <DialogTitle>Report Query</DialogTitle>
+                                          <DialogContent>
+                                          <DialogContentText>
+                                              Please provide the reason for reporting this query.
+                                          </DialogContentText>
+                                          <TextField
+                                              autoFocus
+                                              margin="dense"
+                                              label="Reason"
+                                              type="text"
+                                              fullWidth
+                                              variant="outlined"
+                                              value={reason}
+                                              onChange={(e) => setReason(e.target.value)}
+                                          />
+                                          </DialogContent>
+                                          <DialogActions>
+                                          <Button onClick={handleCloseDialog} color="success">
+                                              Cancel
+                                          </Button>
+                                          <Button onClick={handleSubmitReport} color="danger">
+                                              Submit
+                                          </Button>
+                                          </DialogActions>
+                                      </Dialog>
+                                  </>
+                                  }
+                              />
+                              <PostContent>
+                                <Box style={{marginBottom:"10px", marginTop:"0px"}}>
+                                    <Typography variant="h6" style={{width:"100%"}}>{post.title}</Typography>
+                                </Box>
+                                <Box display="flex" justifyContent="space-between" alignItems="center" marginBottom="5px" width="100%">
+                                    
+                                    <Box display="flex" justifyContent="space-between" alignItems="center" marginBottom="0px" width="100%">
+                                        <Button variant="outlined" size="small" style={{ background: theme.palette.ternaryButton.main, borderRadius: '5px', marginRight: '10px' }}>
+                                            <HelpOutline style={{ color: "#c70039" }} />
+                                            <span style={{ color: "#363636" }}>Query</span>
+                                        </Button>
+                                        <Button variant="outlined" size="small" style={{ background: theme.palette.ternaryButton.main, borderRadius: '5px', color: "#363636" }}>
+                                            <Tag />
+                                            {post.topic || "Botany"}
+                                        </Button>
+                                    </Box>
+                                </Box>
+                                  { post?.image  && (
+                                  <>
+                                      <ImageContainer onClick={handleImageOpen}>
+                                          <ImagePreview src={post?.image?.url} alt={post.title} />
+                                      </ImageContainer>
+                                      <EnlargedImagePreview open={imageOpen} handleClose={handleImageClose} imgSrc={post.image.url} />
+                                  </>
+                                      
+                                  )}
+                                  
+                                  <Typography variant="body2">{post.description}</Typography>
+                              </PostContent>
+                              <PostActions>
+                                  <Box display="flex" alignItems="center">
+                                    <Box onClick={isLiked ? handleUnlike : handleLike}   sx={{display:"flex" , justifyContent:"center", alignContent:"center", alignItems:"center", marginRight:'2rem'}}>
+                                      <IconButton aria-label="like"  style={{ color: isLiked ? "red" : "inherit" }}>
+                                          <Favorite />
+                                      </IconButton>
+                                      <Typography variant="body2" style={{ fontSize: "0.7rem", cursor: "pointer " }}>{likeCount} Likes</Typography>
+                                  </Box>
+                                  </Box>
+                                  <Box display="flex" alignItems="center">
+                                      {/* <Button style={{color:theme.palette.secondary.main}}>
+                                          <IconButton aria-label="share">
+                                              <Share />
+                                          </IconButton>
+                                          <Typography variant="body2" style={{fontSize:"0.7rem"}}>{post.shares} shares</Typography>
+                                      </Button> */}
+                                  </Box>
+                                  
+                              </PostActions>
+                  </PostCard>
+
+                  {/* Button for filtering between comments and answers */}
+                  <Box sx={{ display: 'flex', justifyContent: 'flex-start', marginBottom: '10px',  }}>
+                      <FormControl sx={{ m: 1, minWidth: 120, backgroundColor:'rgba(255,255,255, 0.9)', borderRadius:'8px',color:"#000000" }}>
+                      <Select
+                          value={selectType}
+                          onChange={(e) => handleSelctType(e)}
+                          displayEmpty
+                          inputProps={{ 'aria-label': 'Without label' }}
+                          style={{color:theme.palette.secondary.main, borderRadius:'8px',}}
+                          
+                      >
+                          <MenuItem value="comments">Comments</MenuItem>
+                          <MenuItem value="answers">Answers</MenuItem>
+                      </Select>
+                      </FormControl>
+                  </Box>
+
+                  {/* Testing the comment display */}
+                  <CommentContainerCard  id="outerCard">
+                                  { (selectType === "comments") && (
+
+                                              <InfiniteScroll
+                                              dataLength={comments.length}
+                                              next={fetchMoreComments}
+                                              hasMore={hasMoreComments}
+                                              loader={<CommentLoading count={4} />}
+                                              endMessage={<Box>No more comments</Box>}
+                                              scrollableTarget="commentsModal"
+                                              >
+                                              {comments.length === 0 && !isCommentsLoading && (
+                                                <Box>No comments yet</Box>
+                                              )}
+                                              {comments.map(comment => (
+                                                <SingleCommentQuery
+                                                  key={comment._id}
+                                                  comment={comment}
+                                                  queryId={post._id}
+                                                  setErrorFlag={setErrorFlag}
+                                                  onRemoveComment={handleRemoveComment}
+                                                />
+                                              ))}
+                                              </InfiniteScroll>
+                                  ) }
+
+                                  { (selectType === "answers") && (
+
+                                                <InfiniteScroll
+                                                dataLength={answers.length}
+                                                next={fetchMoreAnswers}
+                                                hasMore={hasMoreAnswers}
+                                                loader={<CommentLoading count={4}  />}
+                                                endMessage={<Box>No more answers</Box>}
+                                                scrollableTarget="commentsModal"
+                                                >
+                                                
+                                                {answers.map(answer => (
+                                                  <SingleAnswer
+                                                    key={answer._id}
+                                                    answer={answer}
+                                                    queryId={post._id}
+                                                    setErrorFlag={setErrorFlag}
+                                                    onRemoveAnswer={handleRemoveAnswers}
+                                                  />
+                                                ))}
+                                                </InfiniteScroll>
+                                  ) }
+                  </CommentContainerCard>
+
+          </div>
+      
+          
+          {/* comment box here */}
+
+          <Card sx={{  alignItems: 'center', padding: '10px 10px 5px 5px', boxShadow: 3, borderRadius: '10px', marginBottom: '0px', backgroundColor: 'rgba(0,0,0, 0.1)',
+              backdropFilter: 'blur(6px) saturate(200%)',
+              WebkitBackdropFilter: 'blur(6px) saturate(200%)',
+              border: '1px solid rgba(209, 213, 219, 0.6)', 
+               }}>
+    
+              <Box sx={{ flexGrow: 1,display: 'flex', alignItems: 'center',justifyItems:'center',paddingTop:'10px' }}>
+              
+                  <Avatar 
+                      alt={userInfo.name} 
+                      src={userInfo.image?.url || userInfo.image || fallbackImage} 
+                      sx={{ width: 56, height: 56, marginRight: '16px' ,}} 
+                  />
+
+                  <TextField
+                  value={commentContent}
+                  onChange={handleCommentChange}
+                  fullWidth
+                  placeholder="Add a comment..."
+                  variant="standard"
+                  multiline
+                  sx={{
+                      backgroundColor: theme.palette.textFieldbg.main,
+                      borderRadius: '25px',
+                      borderColor:theme.palette.textFieldbg.main,
+                      boxShadow: `inset 1px 1px ${theme.palette.buttonOutline.main}`,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      padding: '10px 20px',
+                      textTransform: 'none',
+                      maxHeight:"80px",
+                      overflowY:"auto",
+                      color: theme.palette.text.primary,
+                      fontWeight: 'normal',
+                      '&:hover': {
+                      backgroundColor: theme.palette.textFieldbgEnhanced.main, 
+                      },
+                  }}
+                  InputProps={{
+                      notched: 'false',
+                  }}
+                  />
+              
+              </Box>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-around', marginTop: '10px' }}>
+                  <Button startIcon={<Comment />} sx={{ color: 'red' }} onClick={handleCommentSubmit}>
+                      Comment
+                  </Button>
+                  <Button startIcon={<CheckCircle />} sx={{ color: 'green' }} onClick={handleAnswerSubmit} >
+                      Answer
+                  </Button>
+                  </Box>
+              
+          </Card>
+
+          </div>
+      {/* <AppBar position="static" style={{height:'20px', backgroundColor:'#ffff', minWidth:'100%', bottom:'0', overflowY: 'hidden'}}> Hi </AppBar> */}
+          
+        
+      </StyledModal>
+    </ThemeProvider>
+  );
+});
+
+
+EnlargedQuery.propTypes = {
+  open: PropTypes.bool.isRequired,
+  onClose: PropTypes.func.isRequired,
+  post: PropTypes.shape({
+    _id: PropTypes.string.isRequired,
+    user: PropTypes.shape({
+      name: PropTypes.string.isRequired,
+      image: PropTypes.shape({
+        url: PropTypes.string
+      }),
+      googleProfilePicture: PropTypes.string
+    }),
+    image: PropTypes.shape({
+      url: PropTypes.string
+    }),
+    title: PropTypes.string.isRequired,
+    description: PropTypes.string.isRequired,
+    topic: PropTypes.string,
+    isFollowing: PropTypes.bool
+  }).isRequired,
+  relativeTime: PropTypes.string.isRequired,
+  isLiked: PropTypes.bool.isRequired,
+  likeCount: PropTypes.number.isRequired,
+  handleLike: PropTypes.func.isRequired,
+  handleUnlike: PropTypes.func.isRequired,
+  setErrorFlag: PropTypes.func.isRequired,
+  setCommentCount: PropTypes.func.isRequired,
+  setAnswerCount: PropTypes.func.isRequired
+};
+
+
+export default EnlargedQuery;
+

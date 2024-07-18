@@ -129,4 +129,5 @@ dist
 .yarn/install-state.gz
 .pnp.*
 
-backend/configs/firebase-service-account-file.json
+./configs/service-account-file.json
+./configs/firebase-service-account-file.json
