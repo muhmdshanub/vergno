@@ -21,7 +21,7 @@ import ErrorAlertDialog from '../components/ErrorAlertDialoge';
 const auth = getAuth(firebaseApp);
 
 const Wrapper = styled('div')(({ theme }) =>({
-  margin: '40px',  // 40px margin on all sides
+  margin: '40px 10px',  // 40px margin on all sides
   [theme.breakpoints.down('md')]: {
     paddingLeft:'0',
     alignItems: 'flex-start',
@@ -30,15 +30,21 @@ const Wrapper = styled('div')(({ theme }) =>({
 }));
 
 const LoginPaper = styled(Paper)(({ theme }) => ({
+  backgroundColor: 'rgba(255, 255, 255, 0.45)',
+  backdropFilter: 'blur(6px) saturate(150%)',
+  WebkitBackdropFilter: 'blur(6px) saturate(150%)', // For Safari support
+  border: '1px solid rgba(209, 213, 219, 0.3)', // Semi-transparent border
+  boxShadow: theme.shadows[3],
+  transition: 'background-color 0.3s ease, border 0.3s ease, box-shadow 0.3s ease', // Smooth transition
   display: 'flex',
   flexDirection: 'column',
   justifyContent: 'center',
   alignItems: 'center',
-  padding: '60px 100px',
+  padding: '60px 80px',
   width: '100%',
   borderRadius: '10px',
-  boxShadow: theme.shadows[3],
   minWidth:'fit-content',
+  
   
 }));
 
@@ -71,33 +77,68 @@ const InfoContainer = styled(Box)(({ theme }) => ({
   },
 }));
 
+
+
 const LoginButton = styled(Button)(({ theme }) => ({
-  width:'300px',
-  backgroundColor: `${theme.palette.submitButton.main}`,
-  color: '#ffff',
+  width: '300px',
+  backgroundColor: 'rgba(62, 166, 250, 0.8)', // submitButton main color with 50% opacity
+  color: '#ffffff',
   marginTop: '20px',
-  '&:hover': {
-    backgroundColor: `${theme.palette.submitButtonEnhanced.main}`,
-  },
+  border: '1px solid rgba(255, 255, 255, 0.8)', // Light border for the glass effect
+  backdropFilter: 'blur(10px)', // Blur for the glass effect
+  boxShadow: '0 4px 30px rgba(0, 0, 0, 0.1)', // Light shadow for depth
   borderRadius: '0.4rem',
+  '&:hover': {
+    backgroundColor: 'rgba(0, 141, 255, 0.9)', // submitButtonEnhanced main color with 50% opacity
+  },
 }));
 
+
+
+
 const SignupButton = styled(Button)(({ theme }) => ({
-  width:'300px',
-  backgroundColor: `${theme.palette.secondaryButton.main}`,
-  color: '#fff',
+  width: '300px',
+  backgroundColor: 'rgba(7, 135, 176, 0.8)', // secondaryButton main color with 50% opacity
+  color: '#ffffff',
   marginTop: '10px',
-  '&:hover': {
-    backgroundColor: `${theme.palette.secondaryButtonEnhanced.main}`,
-  },
+  border: '1px solid rgba(255, 255, 255, 0.4)', // Light border for the glass effect
+  backdropFilter: 'blur(10px)', // Blur for the glass effect
+  boxShadow: '0 4px 30px rgba(0, 0, 0, 0.1)', // Light shadow for depth
   borderRadius: '0.4rem',
+  '&:hover': {
+    backgroundColor: 'rgba(6, 124, 161, 0.9)', // secondaryButtonEnhanced main color with 50% opacity
+  },
 }));
+
+
+// const StyledTextField = styled(TextField)(({ theme }) => ({
+//   marginBottom: '20px',
+//   width:'300px',
+//   borderRadius: '0.4rem',
+//   backgroundColor:`${theme.palette.textFieldbg.main}`
+// }));
+
 
 const StyledTextField = styled(TextField)(({ theme }) => ({
   marginBottom: '20px',
-  width:'300px',
+  width: '300px',
   borderRadius: '0.4rem',
-  backgroundColor:`${theme.palette.textFieldbg.main}`
+  backgroundColor: 'rgba(255, 255, 255, 0.8)', // Semi-transparent background
+  border: '1px solid rgba(255, 255, 255, 0.4)', // Light border for the glass effect
+  backdropFilter: 'blur(10px)', // Blur for the glass effect
+  boxShadow: '0 4px 30px rgba(0, 0, 0, 0.1)', // Subtle shadow for depth
+  color: `${theme.palette.text.primary}`, // Ensure text color is readable
+  '& .MuiOutlinedInput-root': {
+    '& fieldset': {
+      borderColor: 'rgba(255, 255, 255, 0.2)', // Border color of the TextField
+    },
+    '&:hover fieldset': {
+      borderColor: 'rgba(255, 255, 255, 0.4)', // Border color on hover
+    },
+    '&.Mui-focused fieldset': {
+      borderColor: 'rgba(255, 255, 255, 0.6)', // Border color when focused
+    },
+  },
 }));
 
 const StyledGoogleButton = styled(Button)(({ theme }) => ({
@@ -111,6 +152,8 @@ const StyledGoogleButton = styled(Button)(({ theme }) => ({
   },
   borderRadius: '0.4rem',
 }));
+
+
 
 const StyledDivider = styled(Divider)({
   margin: '20px 0',

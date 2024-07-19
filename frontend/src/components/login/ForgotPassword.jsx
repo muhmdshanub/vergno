@@ -15,6 +15,7 @@ const StyledModal = styled(Modal)(({ theme }) => ({
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
+  
 }));
 
 const StyledPaper = styled(Paper)(({ theme }) => ({
@@ -28,35 +29,89 @@ const StyledPaper = styled(Paper)(({ theme }) => ({
   minWidth: 'fit-content',
   width: '500px',
   maxHeight: '80vh',
+  backgroundColor:'transparent'
 }));
+
+const GlassmorphicAppBar = styled(AppBar)(({ theme }) => ({
+  backgroundColor: 'rgba(255, 255, 255, 0.45)', // Semi-transparent background
+  backdropFilter: 'blur(6px) saturate(150%)', // Blur and saturate for the glass effect
+  WebkitBackdropFilter: 'blur(6px) saturate(150%)', // For Safari support
+  border: '1px solid rgba(209, 213, 219, 0.3)', // Semi-transparent border
+  boxShadow: theme.shadows[3], // Subtle shadow for depth
+  transition: 'background-color 0.3s ease, border 0.3s ease, box-shadow 0.3s ease', // Smooth transition
+  borderBottom: `1px solid ${theme.palette.divider}`,
+}));
+
+const GlassmorphicBox = styled(Box)(({theme})=>({
+  backgroundColor: 'rgba(255, 255, 255, 0.45)',
+  backdropFilter: 'blur(6px) saturate(150%)',
+  WebkitBackdropFilter: 'blur(6px) saturate(150%)', // For Safari support
+  border: '1px solid rgba(209, 213, 219, 0.3)', // Semi-transparent border
+  boxShadow: theme.shadows[3],
+  transition: 'background-color 0.3s ease, border 0.3s ease, box-shadow 0.3s ease', // Smooth transition
+}))
 
 const FormContainer = styled(Box)(({ theme }) => ({
   display: 'flex',
   flexDirection: 'column',
   justifyContent: 'center',
   alignItems: 'center',
-  background: theme.palette.primary.main,
+  background: 'transparent',
   minWidth: 'fit-content',
-  borderRadius: '4px',
+  
 }));
 
 const StyledTextField = styled(TextField)(({ theme }) => ({
-  marginBottom: '10px',
+  marginBottom: '20px',
   width: '300px',
-  borderRadius: '4px',
-  background: theme.palette.textFieldbg.main,
+  borderRadius: '0.4rem',
+  backgroundColor: 'rgba(255, 255, 255, 0.8)', // Semi-transparent background
+  border: '1px solid rgba(255, 255, 255, 0.4)', // Light border for the glass effect
+  backdropFilter: 'blur(10px)', // Blur for the glass effect
+  boxShadow: '0 4px 30px rgba(0, 0, 0, 0.1)', // Subtle shadow for depth
+  color: `${theme.palette.text.primary}`, // Ensure text color is readable
+  '& .MuiOutlinedInput-root': {
+    '& fieldset': {
+      borderColor: 'rgba(255, 255, 255, 0.2)', // Border color of the TextField
+    },
+    '&:hover fieldset': {
+      borderColor: 'rgba(255, 255, 255, 0.4)', // Border color on hover
+    },
+    '&.Mui-focused fieldset': {
+      borderColor: 'rgba(255, 255, 255, 0.6)', // Border color when focused
+    },
+  },
 }));
 
 const StyledButton = styled(Button)(({ theme }) => ({
-  marginTop: '20px',
   width: '300px',
-  backgroundColor: `${theme.palette.submitButton.main}`,
-  color: '#fff',
+  backgroundColor: 'rgba(62, 166, 250, 0.8)', // submitButton main color with 50% opacity
+  color: '#ffffff',
+  marginTop: '20px',
+  border: '1px solid rgba(255, 255, 255, 0.8)', // Light border for the glass effect
+  backdropFilter: 'blur(10px) saturate(180%)', // Blur for the glass effect
+  boxShadow: '0 4px 30px rgba(0, 0, 0, 0.1)', // Light shadow for depth
+  borderRadius: '0.4rem',
   '&:hover': {
-    backgroundColor: `${theme.palette.submitButtonEnhanced.main}`,
+    backgroundColor: 'rgba(0, 141, 255, 0.9)', // submitButtonEnhanced main color with 50% opacity
   },
-  marginBottom: '10px'
 }));
+
+const ResendButton = styled(Button)(({ theme }) => ({
+  width: '300px',
+  backgroundColor: 'rgba(7, 135, 176, 0.4)', // secondaryButton main color with 50% opacity
+  color: '#ffffff',
+  marginTop: '10px',
+  border: '1px solid rgba(255, 255, 255, 0.4)', // Light border for the glass effect
+  backdropFilter: 'blur(10px) saturate(180%)', // Blur for the glass effect
+  boxShadow: '0 4px 30px rgba(0, 0, 0, 0.1)', // Light shadow for depth
+  borderRadius: '0.4rem',
+  '&:hover': {
+    backgroundColor: 'rgba(6, 124, 161, 0.5)', // secondaryButtonEnhanced main color with 50% opacity
+  },
+}));
+
+
 
 const ForgotPassword = ({ open, onClose }) => {
   const dispatch = useDispatch();
@@ -176,21 +231,21 @@ const ForgotPassword = ({ open, onClose }) => {
       <StyledModal open={open} onClose={onClose}>
         <StyledPaper>
           <div style={{ backgroundImage: theme.palette.backgroundColor.main, minWidth: '100%', overflowY: 'auto' }}>
-            <AppBar position="sticky">
+            <GlassmorphicAppBar position="sticky">
               <Toolbar>
-                <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+                <Typography variant="h6" component="div" sx={{ flexGrow: 1 , color:'#ffffff'}}>
                   Forgot Password
                 </Typography>
                 <IconButton edge="end" color="inherit" aria-label="close" onClick={onClose}>
                   <CloseIcon />
                 </IconButton>
               </Toolbar>
-            </AppBar>
-            <Box p={2} width="100%">
+            </GlassmorphicAppBar>
+            <GlassmorphicBox p={2} width="100%">
               <FormContainer>
                 {step === 1 && (
                   <>
-                    <Typography variant="h6" gutterBottom>
+                    <Typography variant="h6" sx={{color:'#ffffff'}} gutterBottom>
                       Enter your email id
                     </Typography>
                     <StyledTextField fullWidth label="Email" variant="outlined" margin="normal" value={email} onChange={(e) => setEmail(e.target.value)} />
@@ -202,7 +257,7 @@ const ForgotPassword = ({ open, onClose }) => {
                 )}
                 {step === 2 && (
                   <>
-                    <Typography variant="h6" gutterBottom>
+                    <Typography variant="h6" sx={{color:'#ffffff'}} gutterBottom>
                       Enter the OTP we sent to your email: <strong>{email}</strong>
                     </Typography>
                     <StyledTextField fullWidth label="OTP" variant="outlined" margin="normal" value={otp} onChange={handleChangeOtp} 
@@ -212,9 +267,9 @@ const ForgotPassword = ({ open, onClose }) => {
                     <Typography variant="body2" gutterBottom>
                       {timeLeft > 0 ? formatTimeLeft(timeLeft) : "OTP expired"}
                     </Typography>
-                    <Button variant="contained" sx={{ backgroundColor: theme.palette.secondaryButton.main, color: theme.palette.primary.main }} disabled={timeLeft > 150} onClick={handleResendOtp}>
+                    <ResendButton variant="contained" sx={{ backgroundColor: theme.palette.secondaryButton.main, color: theme.palette.primary.main }} disabled={timeLeft > 150} onClick={handleResendOtp}>
                       Resend OTP
-                    </Button>
+                    </ResendButton>
                     {isLoadingVerifyOtp && <LoadingModal open={isLoadingVerifyOtp} />}
                     <StyledButton variant="contained" fullWidth color="primary" onClick={handleSubmitOtp}>
                       Submit
@@ -235,7 +290,7 @@ const ForgotPassword = ({ open, onClose }) => {
                   </>
                 )}
               </FormContainer>
-            </Box>
+            </GlassmorphicBox>
           </div>
         </StyledPaper>
       </StyledModal>

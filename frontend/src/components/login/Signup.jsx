@@ -1,12 +1,30 @@
 import React,{useState, useEffect} from 'react';
 import PropTypes from 'prop-types';
-import { Dialog, DialogActions, DialogContent, AppBar, Toolbar, Typography, IconButton, Box, Paper, TextField,DialogTitle, Button, Modal, MenuItem, FormControl, InputLabel, Select,RadioGroup, FormControlLabel,FormLabel, Radio, Tooltip, Badge } from '@mui/material';
+import { Dialog, DialogActions, DialogContent, AppBar, Toolbar, Typography, IconButton, Box, Paper, TextField,DialogTitle, Button, Modal, MenuItem, FormControl, InputLabel, Select,RadioGroup, FormControlLabel,FormLabel, Radio, Tooltip, Badge, Card } from '@mui/material';
 import { styled, ThemeProvider, useTheme } from '@mui/system'; // Import ThemeProvider
 import CloseIcon from '@mui/icons-material/Close';
 import {months, days, years} from '../../utils/datGenerate'
 import { useRegisterMutation } from '../../slices/api_slices/userApiSlice';
 import LoadingModal from '../LoadingModal';
 import ErrorAlertDialog from '../ErrorAlertDialoge';
+
+
+const scrollBarStyles = {
+  '&::-webkit-scrollbar': {
+    width: '4px',
+  },
+  '&::-webkit-scrollbar-thumb': {
+    backgroundColor: 'rgba(255, 255, 255, 0.75)',
+    borderRadius: '10px',
+  },
+  '&::-webkit-scrollbar-thumb:hover': {
+    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+  },
+  '&::-webkit-scrollbar-track': {
+    backgroundColor: 'rgba(255, 255, 255, 0.3)',
+  },
+};
+
 
 const StyledModal = styled(Modal)(({ theme }) => ({ // Use destructuring to access the theme
     display: 'flex',
@@ -29,38 +47,95 @@ const StyledPaper = styled(Paper)(({ theme }) => ({ // Use destructuring to acce
     maxHeight: '80vh',
     
     position: 'relative', // Ensure position is relative for inner fixed elements
+    backgroundColor:'transparent',
+    [theme.breakpoints.down('md')]: {
+      width: '350px',
+    },
     
 }));
+
+const GlassmorphicAppBar = styled(AppBar)(({ theme }) => ({
+  backgroundColor: 'rgba(255, 255, 255, 0.45)', // Semi-transparent background
+  backdropFilter: 'blur(6px) saturate(150%)', // Blur and saturate for the glass effect
+  WebkitBackdropFilter: 'blur(6px) saturate(150%)', // For Safari support
+  border: '1px solid rgba(209, 213, 219, 0.3)', // Semi-transparent border
+  boxShadow: theme.shadows[3], // Subtle shadow for depth
+  transition: 'background-color 0.3s ease, border 0.3s ease, box-shadow 0.3s ease', // Smooth transition
+  borderBottom: `1px solid ${theme.palette.divider}`,
+  
+}));
+
+
+const GlassmorphicBox = styled(Box)(({theme})=>({
+  backgroundColor: 'rgba(255, 255, 255, 0.45)',
+  backdropFilter: 'blur(6px) saturate(150%)',
+  WebkitBackdropFilter: 'blur(6px) saturate(150%)', // For Safari support
+  border: '1px solid rgba(209, 213, 219, 0.3)', // Semi-transparent border
+  boxShadow: theme.shadows[3],
+  transition: 'background-color 0.3s ease, border 0.3s ease, box-shadow 0.3s ease', // Smooth transition
+  ...scrollBarStyles
+}))
+
 
 const FormContainer = styled(Box)(({ theme }) => ({
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'center',
-    background:theme.palette.primary.main,
+    
     minWidth:'fit-content',
     borderRadius: '4px',
 }));
   
 const StyledTextField = styled(TextField)(({ theme }) => ({
-    marginBottom: '10px',
-    width:'300px',
-    borderRadius: '4px',
-    background: theme.palette.textFieldbg.main,
+  marginBottom: '20px',
+  width: '300px',
+  borderRadius: '0.4rem',
+  backgroundColor: 'rgba(255, 255, 255, 0.8)', // Semi-transparent background
+  border: '1px solid rgba(255, 255, 255, 0.4)', // Light border for the glass effect
+  backdropFilter: 'blur(10px)', // Blur for the glass effect
+  boxShadow: '0 4px 30px rgba(0, 0, 0, 0.1)', // Subtle shadow for depth
+  color: `${theme.palette.text.primary}`, // Ensure text color is readable
+  '& .MuiOutlinedInput-root': {
+    '& fieldset': {
+      borderColor: 'rgba(255, 255, 255, 0.2)', // Border color of the TextField
+    },
+    '&:hover fieldset': {
+      borderColor: 'rgba(255, 255, 255, 0.4)', // Border color on hover
+    },
+    '&.Mui-focused fieldset': {
+      borderColor: 'rgba(255, 255, 255, 0.6)', // Border color when focused
+    },
+  },
 }));
 
 const StyledButton = styled(Button)(({ theme }) => ({
-    marginTop: '20px',
-    width:'300px',
-    backgroundColor: `${theme.palette.submitButton.main}`,
-    color: '#fff',
-    '&:hover': {
-      backgroundColor: `${theme.palette.submitButtonEnhanced.main}`,
-    },
-    marginBottom:'10px'
+  width: '300px',
+  backgroundColor: 'rgba(62, 166, 250, 0.8)', // submitButton main color with 50% opacity
+  color: '#ffffff',
+  marginTop: '20px',
+  border: '1px solid rgba(255, 255, 255, 0.8)', // Light border for the glass effect
+  backdropFilter: 'blur(10px) saturate(180%)', // Blur for the glass effect
+  boxShadow: '0 4px 30px rgba(0, 0, 0, 0.1)', // Light shadow for depth
+  borderRadius: '0.4rem',
+  '&:hover': {
+    backgroundColor: 'rgba(0, 141, 255, 0.9)', // submitButtonEnhanced main color with 50% opacity
+  },
 }));
 
 
+const StyledFormControl = styled(FormControl)(({ theme }) => ({
+  
+  backgroundColor: 'rgba(255,255,255, 0.45)', // submitButton main color with 50% opacity
+ 
+  border: '1px solid rgba(255, 255, 255, 0.45)', // Light border for the glass effect
+  backdropFilter: 'blur(10px) saturate(180%)', // Blur for the glass effect
+  
+  borderRadius: '0.4rem',
+  '&:hover': {
+    backgroundColor: 'rgba(255,255,255, 0.55)', // submitButtonEnhanced main color with 50% opacity
+  },
+}));
 
 
 
@@ -241,18 +316,18 @@ const Signup = ({ open, onClose, onEmailVerifyOpen,setUserTempData,}) => {
       <ThemeProvider theme={theme}> {/* Wrap your components with ThemeProvider */}
         <StyledModal open={open} onClose={onClose} >
           <StyledPaper  >
-            <div  style={{backgroundImage:theme.palette.backgroundColor.main,minWidth:'100%', overflowY: 'auto', position:'relative'}}>
-            <AppBar position="sticky">
+            <Card  sx={{backgroundColor:'transparent',minWidth:'100%', overflowY: 'auto', position:'relative',...scrollBarStyles}}>
+            <GlassmorphicAppBar position="sticky">
                 <Toolbar>
-                  <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+                  <Typography variant="h6" component="div" sx={{ flexGrow: 1, color:'#ffffff' }}>
                     Sign Up
                   </Typography>
                   <IconButton edge="end" color="inherit" aria-label="close" onClick={onClose}>
                     <CloseIcon />
                   </IconButton>
                 </Toolbar>
-            </AppBar>
-        <Box p={2} width="100%">
+            </GlassmorphicAppBar>
+        <GlassmorphicBox p={2} width="100%">
           <FormContainer>
             <StyledTextField fullWidth label="Name" variant="outlined" margin="normal" value={name}  onChange={(e) => {
                     const nameValue = e.target.value;
@@ -333,34 +408,34 @@ const Signup = ({ open, onClose, onEmailVerifyOpen,setUserTempData,}) => {
             
             
             <Tooltip title={dobWarn ? "Please select a valid date" : ""} open={dobWarn} arrow>
-            <Box display="flex" justifyContent="space-between" gap="10px" style={{background: theme.palette.textFieldbg.main,}} >
+            <Box display="flex" justifyContent="space-between" gap="10px" style={{background: 'transparent',}} >
               
-              <FormControl fullWidth variant="outlined"  >
+              <StyledFormControl fullWidth variant="outlined"  >
                 <InputLabel>Day</InputLabel>
                 <Select label="Day" value={selectedDay} onChange={handleDayChange} style={{minWidth:'94px'}}>
                   {days.map((day) => (
                     <MenuItem key={day} value={day}>{day}</MenuItem>
                   ))}
                 </Select>
-              </FormControl>
+              </StyledFormControl>
               
-              <FormControl fullWidth variant="outlined" style={{background: theme.palette.textFieldbg.main,}}>
+              <StyledFormControl fullWidth variant="outlined" >
                 <InputLabel>Month</InputLabel>
                 <Select label="Month" value={selectedMonth} onChange={handleMonthChange} style={{minWidth:'94px'}}>
                   {months.map((month, index) => (
                     <MenuItem key={index} value={month}>{month}</MenuItem>
                   ))}
                 </Select>
-              </FormControl>
+              </StyledFormControl>
               
-              <FormControl fullWidth variant="outlined" style={{background: theme.palette.textFieldbg.main,}}>
+              <StyledFormControl fullWidth variant="outlined">
                 <InputLabel>Year</InputLabel>
                 <Select label="Year" value={selectedYear} onChange={handleYearChange} style={{minWidth:'94px'}}>
                   {years.map((year) => (
                     <MenuItem key={year} value={year}>{year}</MenuItem>
                   ))}
                 </Select>
-              </FormControl>
+              </StyledFormControl>
 
               
           </Box>
@@ -386,12 +461,12 @@ const Signup = ({ open, onClose, onEmailVerifyOpen,setUserTempData,}) => {
 
             
           </FormContainer>
-        </Box>
+        </GlassmorphicBox>
 
         
 
-            </div>
-            <AppBar position="static" style={{height:'20px', backgroundColor:'#ffff', minWidth:'100%', bottom:'0', overflowY: 'hidden'}}> </AppBar>
+            </Card>
+            
             
           </StyledPaper>
         </StyledModal>

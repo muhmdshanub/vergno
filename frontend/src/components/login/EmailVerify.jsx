@@ -30,35 +30,89 @@ const StyledPaper = styled(Paper)(({ theme }) => ({ // Use destructuring to acce
   minWidth: 'fit-content',
   width: '500px',
   maxHeight: '80vh',
+  backgroundColor:'transparent',
+  [theme.breakpoints.down('md')]: {
+    width: '350px',
+  },
 
 }));
+
+const GlassmorphicAppBar = styled(AppBar)(({ theme }) => ({
+  backgroundColor: 'rgba(255, 255, 255, 0.45)', // Semi-transparent background
+  backdropFilter: 'blur(6px) saturate(150%)', // Blur and saturate for the glass effect
+  WebkitBackdropFilter: 'blur(6px) saturate(150%)', // For Safari support
+  border: '1px solid rgba(209, 213, 219, 0.3)', // Semi-transparent border
+  boxShadow: theme.shadows[3], // Subtle shadow for depth
+  transition: 'background-color 0.3s ease, border 0.3s ease, box-shadow 0.3s ease', // Smooth transition
+  borderBottom: `1px solid ${theme.palette.divider}`,
+}));
+
+const GlassmorphicBox = styled(Box)(({theme})=>({
+  backgroundColor: 'rgba(255, 255, 255, 0.45)',
+  backdropFilter: 'blur(6px) saturate(150%)',
+  WebkitBackdropFilter: 'blur(6px) saturate(150%)', // For Safari support
+  border: '1px solid rgba(209, 213, 219, 0.3)', // Semi-transparent border
+  boxShadow: theme.shadows[3],
+  transition: 'background-color 0.3s ease, border 0.3s ease, box-shadow 0.3s ease', // Smooth transition
+}))
 
 const FormContainer = styled(Box)(({ theme }) => ({
   display: 'flex',
   flexDirection: 'column',
   justifyContent: 'center',
   alignItems: 'center',
-  background: theme.palette.primary.main,
   minWidth: 'fit-content',
   borderRadius: '4px',
 }));
 
 const StyledTextField = styled(TextField)(({ theme }) => ({
-  marginBottom: '10px',
+  marginBottom: '20px',
   width: '300px',
-  borderRadius: '4px',
-  background: theme.palette.textFieldbg.main,
+  borderRadius: '0.4rem',
+  backgroundColor: 'rgba(255, 255, 255, 0.8)', // Semi-transparent background
+  border: '1px solid rgba(255, 255, 255, 0.4)', // Light border for the glass effect
+  backdropFilter: 'blur(10px)', // Blur for the glass effect
+  boxShadow: '0 4px 30px rgba(0, 0, 0, 0.1)', // Subtle shadow for depth
+  color: `${theme.palette.text.primary}`, // Ensure text color is readable
+  '& .MuiOutlinedInput-root': {
+    '& fieldset': {
+      borderColor: 'rgba(255, 255, 255, 0.2)', // Border color of the TextField
+    },
+    '&:hover fieldset': {
+      borderColor: 'rgba(255, 255, 255, 0.4)', // Border color on hover
+    },
+    '&.Mui-focused fieldset': {
+      borderColor: 'rgba(255, 255, 255, 0.6)', // Border color when focused
+    },
+  },
 }));
 
 const StyledButton = styled(Button)(({ theme }) => ({
-  marginTop: '20px',
   width: '300px',
-  backgroundColor: `${theme.palette.submitButton.main}`,
-  color: '#fff',
+  backgroundColor: 'rgba(62, 166, 250, 0.8)', // submitButton main color with 50% opacity
+  color: '#ffffff',
+  marginTop: '20px',
+  border: '1px solid rgba(255, 255, 255, 0.8)', // Light border for the glass effect
+  backdropFilter: 'blur(10px) saturate(180%)', // Blur for the glass effect
+  boxShadow: '0 4px 30px rgba(0, 0, 0, 0.1)', // Light shadow for depth
+  borderRadius: '0.4rem',
   '&:hover': {
-    backgroundColor: `${theme.palette.submitButtonEnhanced.main}`,
+    backgroundColor: 'rgba(0, 141, 255, 0.9)', // submitButtonEnhanced main color with 50% opacity
   },
-  marginBottom: '10px'
+}));
+
+const ResendButton = styled(Button)(({ theme }) => ({
+  width: '300px',
+  backgroundColor: 'rgba(7, 135, 176, 0.4)', // secondaryButton main color with 50% opacity
+  color: '#ffffff',
+  marginTop: '10px',
+  border: '1px solid rgba(255, 255, 255, 0.4)', // Light border for the glass effect
+  backdropFilter: 'blur(10px) saturate(180%)', // Blur for the glass effect
+  boxShadow: '0 4px 30px rgba(0, 0, 0, 0.1)', // Light shadow for depth
+  borderRadius: '0.4rem',
+  '&:hover': {
+    backgroundColor: 'rgba(6, 124, 161, 0.5)', // secondaryButtonEnhanced main color with 50% opacity
+  },
 }));
 
 const EmailVerify = ({ open, onClose, userTempData, setUserTempData,}) => {
@@ -210,31 +264,31 @@ const EmailVerify = ({ open, onClose, userTempData, setUserTempData,}) => {
       <StyledModal open={open} onClose={onClose} >
         <StyledPaper  >
           <div style={{ backgroundImage: theme.palette.backgroundColor.main, minWidth: '100%', overflowY: 'auto' }}>
-            <AppBar position="sticky">
+            <GlassmorphicAppBar position="sticky">
               <Toolbar>
-                <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+                <Typography variant="h6" component="div" sx={{ flexGrow: 1, color:'#ffffff' }}>
                   Verify Email
                 </Typography>
                 <IconButton edge="end" color="inherit" aria-label="close" onClick={onClose} disabled={timeLeft > 120} >
                   <CloseIcon />
                 </IconButton>
               </Toolbar>
-            </AppBar>
-            <Box p={2} width="100%">
+            </GlassmorphicAppBar>
+            <GlassmorphicBox p={2} width="100%">
               <FormContainer>
 
               <Typography
                   variant="body1"
                   gutterBottom
                   sx={{
-                    padding: '30px',
+                    padding: '7px',
                     borderRadius: '8px',
                     color:theme.palette.primary.main,
-                    backgroundColor: theme.palette.danger.main, // Light background color
+                    backgroundColor: 'rgba(255, 0, 0, 0.25)', // Light background color
                     width: '100%',
-                    height:'50px',
+                    height:'40px',
                     textAlign: 'center',
-                    marginTop:'20px',
+                    marginTop:'5px 5px',
                   }}
                 >
                  <strong>Do not close unless you want to cancel the signup.</strong>
@@ -265,9 +319,9 @@ const EmailVerify = ({ open, onClose, userTempData, setUserTempData,}) => {
                       {timeLeft > 0 ? formatTimeLeft(timeLeft)  : "OTP expired"}
                 </Typography>
 
-                <Button variant="contained" sx={{backgroundColor: theme.palette.secondaryButton.main, color: theme.palette.primary.main}} disabled={timeLeft > 150} onClick={handleResendOtp}>
+                <ResendButton variant="contained" sx={{backgroundColor: theme.palette.secondaryButton.main, color: theme.palette.primary.main}} disabled={timeLeft > 150} onClick={handleResendOtp}>
                   Resend OTP
-                </Button>
+                </ResendButton>
 
                 
 
@@ -289,7 +343,7 @@ const EmailVerify = ({ open, onClose, userTempData, setUserTempData,}) => {
                 
 
               </FormContainer>
-            </Box>
+            </GlassmorphicBox>
 
           </div>
 
