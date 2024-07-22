@@ -10,6 +10,25 @@ import InfiniteScroll from 'react-infinite-scroll-component';
 import LoadingModal from '../LoadingModal.jsx';
 import CommentLoading from '../CommentLoading.jsx';
 
+
+
+const scrollBarStyles = {
+  '&::-webkit-scrollbar': {
+    width: '4px',
+  },
+  '&::-webkit-scrollbar-thumb': {
+    backgroundColor: 'rgba(255, 255, 255, 0.75)',
+    borderRadius: '10px',
+  },
+  '&::-webkit-scrollbar-thumb:hover': {
+    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+  },
+  '&::-webkit-scrollbar-track': {
+    backgroundColor: 'rgba(255, 255, 255, 0.3)',
+  },
+};
+
+
 const CommentWrapper = styled('div')(({ theme }) => ({
   display: 'flex',
   alignItems: 'flex-start',
@@ -23,13 +42,17 @@ const AvatarWrapper = styled('div')(({ theme }) => ({
   
 }));
 
-const CommentContent = styled('div')(({ theme }) => ({
-    width:"100%",
-    padding:"12px",
-    backgroundColor: theme.palette.textFieldbg.main,
-    borderRadius: '10px',
-    boxShadow: `inset 1px 1px 1px 1px ${theme.palette.buttonOutline.main}`,
-}));
+const CommentContent = styled(Card)(({theme})=>({
+  
+  alignItems: 'center',
+  padding: '10px', boxShadow: 3,
+  borderRadius: '10px',
+  marginBottom: '20px',
+  backgroundColor: 'rgba(255, 255, 255, 0.65)',
+  backdropFilter: 'blur(8px) saturate(180%)',
+  WebkitBackdropFilter: 'blur(8px) saturate(180%)',
+  border: '1px solid rgba(209, 213, 219, 0.6)',
+}))
 
 const CommentText = styled('p')(({ theme }) => ({
   margin: '0',
@@ -69,6 +92,19 @@ const CommentActions = styled('div')(({ theme }) => ({
   const LikeCount = styled('span')(({ theme }) => ({
     color: '#333',
   }));
+
+
+  const ReplyCard = styled(Card)(({theme})=>({
+  
+    alignItems: 'center',
+    padding: '10px', boxShadow: 3,
+    borderRadius: '10px',
+    marginBottom: '20px',
+    backgroundColor: 'rgba(255, 255, 255, 0.65)',
+    backdropFilter: 'blur(8px) saturate(180%)',
+    WebkitBackdropFilter: 'blur(8px) saturate(180%)',
+    border: '1px solid rgba(209, 213, 219, 0.6)',
+  }))
 
 const SingleCommentPerspective = ({perspectiveId, comment, setErrorFlag, onRemoveComment }) => {
     const theme = useTheme();
@@ -323,25 +359,21 @@ const handleDelete = async () => {
             
         </CommentContent>
         <CommentActions>
-          <div style={{display:'flex',justifyContent: 'space-between',alignItems:"center", paddingLeft:"10px", color:theme.palette.secondary.main}}>
+          <div style={{display:'flex',justifyContent: 'space-between',alignItems:"center", paddingLeft:"10px", color:theme.palette.primary.main}}>
             <span style={{marginRight:'10px'}}>{relativeTime(comment.commented_at)}</span>
-            <ActionButton sx={{marginRight:'10px', color:theme.palette.secondary.main, marginLeft:'10px'}} onClick={isLiked ? handleUnlike : handleLike}>{isLiked ? "unlike" : "like" }</ActionButton>
-            <ActionButton sx={{marginRight:'10px', color:theme.palette.secondary.main}} onClick={handleReplyBoxOpen}>Reply</ActionButton>
-            <ActionButton sx={{color:theme.palette.secondary.main}} onClick={handleOpenDialog} >Report</ActionButton>
-            {(comment.isAbleToDelete === true) && <ActionButton sx={{color:theme.palette.secondary.main, marginLeft:'10px'}}  onClick={handleDelete}>Delete</ActionButton>}
+            <ActionButton sx={{marginRight:'10px', color:theme.palette.primary.main, marginLeft:'10px'}} onClick={isLiked ? handleUnlike : handleLike}>{isLiked ? "unlike" : "like" }</ActionButton>
+            <ActionButton sx={{marginRight:'10px', color:theme.palette.primary.main}} onClick={handleReplyBoxOpen}>Reply</ActionButton>
+            <ActionButton sx={{color:theme.palette.primary.main}} onClick={handleOpenDialog} >Report</ActionButton>
+            {(comment.isAbleToDelete === true) && <ActionButton sx={{color:theme.palette.primary.main, marginLeft:'10px'}}  onClick={handleDelete}>Delete</ActionButton>}
           </div>
-          <LikeCount sx={{marginRight:"20px"}}>{likeCount} likes</LikeCount>
+          <LikeCount sx={{marginRight:"20px", color:'#ffffff'}}>{likeCount} likes</LikeCount>
         </CommentActions>
-        <Button onClick={handleViewReplies} variant="text" style={{color:"#000000"}}>
+        <Button onClick={handleViewReplies} variant="text" style={{color:"#ffffff"}}>
             {viewReplies ? 'Hide Replies' : 'View Replies'} ({comment.reply_count})
         </Button>
 
         { replyBox && (
-            <Card sx={{  alignItems: 'center', paddingTop:"7px",paddingBottom:"0", boxShadow: 3, borderRadius: '10px', marginBottom: '0px',position:"relative", backgroundColor: 'rgba(0,0,0, 0.71)',
-              backdropFilter: 'blur(6px) saturate(200%)',
-              WebkitBackdropFilter: 'blur(6px) saturate(200%)',
-              border: '1px solid rgba(209, 213, 219, 0.6)', 
-              transition: 'background-color 0.3s ease, border 0.3s ease, box-shadow 0.3s ease',  }}>
+            <ReplyCard sx={{  alignItems: 'center', paddingTop:"7px",paddingBottom:"0", boxShadow: 3, borderRadius: '10px', marginBottom: '0px',position:"relative",  }}>
       
                 <IconButton sx={{color:"#ffffff", backgroundColor:"#000000", position:"absolute", right:"4px", top:"4px",height:"10px", width:"10px"}} onClick={handleReplyBoxClose} >
                     <Close style={{height:"10px", width:"10px"}}/>
@@ -363,25 +395,41 @@ const handleDelete = async () => {
                 variant="standard"
                 multiline
                 sx={{
-                    backgroundColor: theme.palette.textFieldbg.main,
-                    borderRadius: '25px',
-                    borderColor:theme.palette.textFieldbg.main,
-                    boxShadow: `inset 1px 1px ${theme.palette.buttonOutline.main}`,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    padding: '10px 20px',
-                    textTransform: 'none',
-                    maxHeight:"60px",
-                    overflowY:"auto",
-                    color: theme.palette.text.primary,
-                    fontWeight: 'normal',
-                    '&:hover': {
-                    backgroundColor: theme.palette.textFieldbgEnhanced.main, 
+                  borderRadius: '15px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  padding: '10px 20px',
+                  textTransform: 'none',
+                  maxHeight: "50px",
+                  overflowY: "auto",
+                  color: theme.palette.text.primary,
+                  fontWeight: 'normal',
+                  backgroundColor: 'rgba(255, 255, 255, 0.8)', // Semi-transparent background
+                  border: '1px solid rgba(255, 255, 255, 0.4)', // Light border for the glass effect
+                  backdropFilter: 'blur(10px)', // Blur for the glass effect
+                  boxShadow: '0 4px 30px rgba(0, 0, 0, 0.1)', // Subtle shadow for depth
+              
+                  '& .MuiOutlinedInput-root': {
+                    padding: 0, // To remove the default padding for multiline TextField
+                    '& fieldset': {
+                      borderColor: 'rgba(255, 255, 255, 0.2)', // Border color of the TextField
                     },
+                    '&:hover fieldset': {
+                      borderColor: 'rgba(255, 255, 255, 0.4)', // Border color on hover
+                    },
+                    '&.Mui-focused fieldset': {
+                      borderColor: 'rgba(255, 255, 255, 0.6)', // Border color when focused
+                    },
+                  },
                 }}
                 InputProps={{
-                    notched: false,
+                  notched: false,
+                  style: {
+                    height: "100%",
+                    overflowY: "auto",
+                    display: "block",
+                  },
                 }}
                 />
             
@@ -392,7 +440,7 @@ const handleDelete = async () => {
                     </Button>
                 </Box>
             
-        </Card>
+        </ReplyCard>
         )}
 
           { viewReplies && (

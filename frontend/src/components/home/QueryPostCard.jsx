@@ -18,17 +18,17 @@ import { useNavigate } from 'react-router-dom';
 const GlassmorphicCard = styled(Card)(({ theme }) => ({
     marginBottom: theme.spacing(2),
     width: '100%',
-    color: '#000000',
+    color: '#ffffff',
     padding: '0px',
     borderRadius: '10px',
     backgroundColor: 'rgba(255, 255, 255, 0.45)', // Semi-transparent background
-    backdropFilter: 'blur(10px) saturate(200%)',
-    WebkitBackdropFilter: 'blur(10px) saturate(200%)', // For Safari support
+    backdropFilter: 'blur(8px) saturate(180%)',
+    WebkitBackdropFilter: 'blur(8px) saturate(180%)', // For Safari support
     border: '1px solid rgba(209, 213, 219, 0.3)', // Semi-transparent border
     boxShadow: theme.shadows[3],
     transition: 'background-color 0.3s ease, border 0.3s ease, box-shadow 0.3s ease', // Smooth transition
     '&:hover': {
-      backgroundColor: 'rgba(255, 255, 255, 0.55)', // Slightly more opaque background
+      backgroundColor: 'rgba(255, 255, 255, 0.65)', // Slightly more opaque background
       border: '1px solid rgba(209, 213, 219, 0.4)', // Slightly more opaque border
       boxShadow: theme.shadows[6], // Increase box shadow on hover
     },
@@ -196,14 +196,14 @@ const QueryPostCard = React.memo(({ post, setErrorFlag }) => {
     
     return (
         <GlassmorphicCard>
-            <CardHeader
+            <CardHeader style={{color:'#ffffff'}}
                 avatar={<Avatar src={post?.user?.image?.url || post?.user?.googleProfilePicture || fallbackImage} sx={{cursor:'pointer'}} onClick={navigateToOtherUserProfile} />}
                 title={
                     <Box display="flex" alignItems="center">
                         <Typography variant="subtitle1" sx={{cursor:'pointer'}} onClick={navigateToOtherUserProfile}>
                             {post?.user?.name}
                         </Typography>
-                        <Typography variant="body2" component="span" sx={{ marginLeft: 1 }}>
+                        {/* <Typography variant="body2" component="span" sx={{ marginLeft: 1 }}>
                             <span style={{ color: 'black' }}>•</span>
                             {followStatus !== 'notFollowing' && (<span style={{ color: followStatus === 'following' ? 'blue' : 'black', cursor: 'pointer' }}>
                                 {followStatus}
@@ -212,13 +212,25 @@ const QueryPostCard = React.memo(({ post, setErrorFlag }) => {
                             {followStatus === 'notFollowing' && (<span style={{ color: 'red', cursor: 'pointer' }} onClick={handleFollow}>
                                 Follow
                             </span>)}
+                        </Typography> */}
+
+                        <Typography variant="body2" component="span" sx={{ marginLeft: 1 }}>
+                                                    <span style={{ color: 'black' }}>•</span>
+                                                    {followStatus !== 'notFollowing' && (<span style={{ marginLeft:'10px', color: followStatus === 'following' ? 'rgba(0, 0, 100, 0.8)' : '(255, 255, 255, 1)', cursor: 'pointer' }}>
+                                                        {followStatus}
+                                                    </span>)}
+
+                                                    {followStatus === 'notFollowing' && (<span style={{ color: 'rgba(100,0,0, 0.8)', cursor: 'pointer' , marginLeft:'10px'}} onClick={handleFollow}>
+                                                        Follow
+                                                    </span>)}
                         </Typography>
                     </Box>
                 }
                 subheader={relativeTime}
+                subheaderTypographyProps={{ style: { color: '#ffffff' } }}
                 action={
                     <>
-                        <IconButton aria-label="settings" onClick={handleClickMenu}>
+                        <IconButton aria-label="settings" onClick={handleClickMenu} sx={{color:'#ffffff'}}>
                             <MoreVert />
                         </IconButton>
                         <Menu
@@ -274,11 +286,11 @@ const QueryPostCard = React.memo(({ post, setErrorFlag }) => {
                 <Box display="flex" justifyContent="space-between" alignItems="center" marginBottom="5px" width="100%">
                     
                     <Box display="flex" justifyContent="space-between" alignItems="center" marginBottom="0px" width="100%">
-                        <Button variant="outlined" size="small" style={{ background: theme.palette.ternaryButton.main, borderRadius: '5px', marginRight: '10px' }}>
-                            <HelpOutline style={{ color: "#c70039" }} />
-                            <span style={{ color: "#363636" }}>Query</span>
+                        <Button variant="outlined" size="small" style={{ background: 'rgba(255, 255, 255, 0.65)', borderRadius: '5px', marginRight: '10px' }}>
+                            <HelpOutline style={{ color: 'rgba(150, 0, 0, 0.6)' }} />
+                            <span style={{ color: "#000000" }}>Query</span>
                         </Button>
-                        <Button variant="outlined" size="small" style={{ background: theme.palette.ternaryButton.main, borderRadius: '5px', color: "#363636" }}>
+                        <Button variant="outlined" size="small" style={{ background: 'rgba(255, 255, 255, 0.65)', borderRadius: '5px', color: "#363636" }}>
                             <Tag />
                             {post.topic || "Botany"}
                         </Button>
@@ -292,7 +304,7 @@ const QueryPostCard = React.memo(({ post, setErrorFlag }) => {
                         <EnlargedImagePreview open={imageOpen} handleClose={handleImageClose} imgSrc={post.image?.url || post?.googleProfilePicture || fallbackImage} />
                     </>
                 )}
-                <Box sx={{width:"100%"}}>
+                <Box sx={{width:"100%",  minHeight:'50px'}}>
                     <Typography variant="body2">
                             {displayDescription}
                             {isLongText && (
@@ -307,7 +319,7 @@ const QueryPostCard = React.memo(({ post, setErrorFlag }) => {
             <PostActions style={{ color: theme.palette.secondary.main, justifyItems: "space-around" }}>
                 <Box display="flex" alignItems="center" justifyItems="space-between" justifyContent="space-between">
 
-                    <Box onClick={isLiked ? handleUnlike : handleLike}   sx={{display:"flex" , justifyContent:"center", alignContent:"center", alignItems:"center", marginRight:'2rem'}}>
+                    <Box onClick={isLiked ? handleUnlike : handleLike}   sx={{display:"flex" , justifyContent:"center", alignContent:"center", alignItems:"center", marginRight:'2rem', color:'#ffffff'}}>
                         <IconButton aria-label="like"  style={{ color: isLiked ? "red" : "inherit" }}>
                             <Favorite />
                         </IconButton>
@@ -315,20 +327,20 @@ const QueryPostCard = React.memo(({ post, setErrorFlag }) => {
                     </Box>
                     
                     <Box onClick={handleQueryOpen}  sx={{display:"flex" , justifyContent:"center", alignContent:"center", alignItems:"center"}}>   
-                        <IconButton aria-label="comment"  style={{ color: theme.palette.secondary.main }}>
+                        <IconButton aria-label="comment"  style={{ color: theme.palette.primary.main }}>
                             <Comment />
                         </IconButton>
-                        <Typography variant="body2" style={{ color: theme.palette.secondary.main, fontSize: "0.7rem", cursor: "pointer " }}>{commentCount} comments</Typography>
+                        <Typography variant="body2" style={{ color: theme.palette.primary.main, fontSize: "0.7rem", cursor: "pointer " }}>{commentCount} comments</Typography>
                     </Box>
                 </Box>
                 <Box display="flex" alignItems="center">
                     <Box onClick={handleQueryOpen}  sx={{display:"flex" , justifyContent:"center", alignContent:"center", alignItems:"center"}}>
-                        <IconButton aria-label="answers"  style={{ color: theme.palette.secondary.main }}>
+                        <IconButton aria-label="answers"  style={{ color: theme.palette.primary.main }}>
                             <Badge sx={{ marginRight: 1 }}>
                                 <CheckCircle />
                             </Badge> 
                         </IconButton>
-                        <Typography variant="body2" style={{ fontSize: "0.7rem", cursor: "pointer "}}>{answerCount} Answers</Typography>
+                        <Typography variant="body2" style={{ fontSize: "0.7rem", cursor: "pointer ", color:'#ffffff'}}>{answerCount} Answers</Typography>
                     </Box>
                     
                     {/* <Box  sx={{display:"flex" , justifyContent:"center", alignContent:"center", alignItems:"center"}}>

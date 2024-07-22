@@ -24,13 +24,17 @@ const AvatarWrapper = styled('div')(({ theme }) => ({
   
 }));
 
-const CommentContent = styled('div')(({ theme }) => ({
-    width:"100%",
-    padding:"12px",
-    backgroundColor: theme.palette.textFieldbg.main,
-    borderRadius: '10px',
-    boxShadow: `inset 1px 1px ${theme.palette.buttonOutline.main}`,
-}));
+const CommentContent = styled(Card)(({theme})=>({
+  
+  alignItems: 'center',
+  padding: '10px', boxShadow: 3,
+  borderRadius: '10px',
+  marginBottom: '20px',
+  backgroundColor: 'rgba(255, 255, 255, 0.65)',
+  backdropFilter: 'blur(8px) saturate(180%)',
+  WebkitBackdropFilter: 'blur(8px) saturate(180%)',
+  border: '1px solid rgba(209, 213, 219, 0.6)',
+}))
 
 const CommentText = styled('p')(({ theme }) => ({
   margin: '0',
@@ -149,19 +153,19 @@ const handleOpenDialog = () => {
             
         </CommentContent>
         <CommentActions>
-          <div style={{display:'flex',justifyContent: 'space-between',alignItems:"center", paddingLeft:"10px", color:theme.palette.secondary.main}}>
+          <div style={{display:'flex',justifyContent: 'space-between',alignItems:"center", paddingLeft:"10px", color:theme.palette.primary.main}}>
             <span style={{marginRight:'10px'}}>{relativeTime(answer.answered_at)}</span>
             
             
             { (answer.isAbleToChnageHelpful)  &&(
-                <ActionButton sx={{color:theme.palette.secondary.main,marginLeft:'10px',marginRight:'10px'}}>Solve</ActionButton>
+                <ActionButton sx={{color:theme.palette.primary.main,marginLeft:'10px',marginRight:'10px'}}>Solve</ActionButton>
             )}
             
             { (answer.isAbleToDelete)  &&(
-                <ActionButton sx={{color:theme.palette.secondary.main,marginLeft:'10px',marginRight:'10px'}} onClick={handleDeleteAnswer}>Delete</ActionButton>
+                <ActionButton sx={{color:theme.palette.primary.main,marginLeft:'10px',marginRight:'10px'}} onClick={handleDeleteAnswer}>Delete</ActionButton>
             )}
             
-            <ActionButton sx={{color:theme.palette.secondary.main}} onClick={handleOpenDialog}>Report</ActionButton>
+            <ActionButton sx={{color:theme.palette.primary.main}} onClick={handleOpenDialog}>Report</ActionButton>
           </div>
           
           

@@ -172,8 +172,8 @@ const ProfileScreen = () => {
         </Box>
         
         {/* Tabs section */}
-        <Paper elevation={3} sx={{ width: '100%', position: "relative" }}>
-          <AppBar position="static" sx={{ top: 0, zIndex: 10, paddingTop: "1rem", paddingBottom: '1rem', marginTop: "2rem", backgroundColor: "#f0f3fa" }} >
+        <Paper elevation={3} sx={{ width: '100%', position: "relative", backgroundColor:'transparent' }}>
+          <AppBar position="static" sx={{ top: 0, zIndex: 10, paddingTop: "1rem", paddingBottom: '1rem', marginTop: "2rem", backgroundColor: "rgba(255, 255, 255, 0.65)" }} >
             <Tabs
               value={value}
               onChange={handleChange}

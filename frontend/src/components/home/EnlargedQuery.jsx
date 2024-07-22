@@ -16,6 +16,27 @@ import { useGetAllAnswersForQueryQuery } from '../../slices/api_slices/answersAp
 import InfiniteScroll from 'react-infinite-scroll-component';
 import CommentLoading from '../CommentLoading.jsx';
 
+
+
+
+const scrollBarStyles = {
+  '&::-webkit-scrollbar': {
+    width: '4px',
+  },
+  '&::-webkit-scrollbar-thumb': {
+    backgroundColor: 'rgba(255, 255, 255, 0.75)',
+    borderRadius: '10px',
+  },
+  '&::-webkit-scrollbar-thumb:hover': {
+    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+  },
+  '&::-webkit-scrollbar-track': {
+    backgroundColor: 'rgba(255, 255, 255, 0.3)',
+  },
+};
+
+
+
 const StyledModal = styled(Modal)(({ theme }) => ({ // Use destructuring to access the theme
     display: 'flex',
     alignItems: 'center',
@@ -24,23 +45,39 @@ const StyledModal = styled(Modal)(({ theme }) => ({ // Use destructuring to acce
        
   }));
 
+  const GlassmorphicAppBar = styled(AppBar)(({ theme }) => ({
+    backgroundColor: 'rgba(255, 255, 255, 0.45)', // Semi-transparent background
+    backdropFilter: 'blur(6px) saturate(150%)', // Blur and saturate for the glass effect
+    WebkitBackdropFilter: 'blur(6px) saturate(150%)', // For Safari support
+    border: '1px solid rgba(209, 213, 219, 0.3)', // Semi-transparent border
+    boxShadow: theme.shadows[3], // Subtle shadow for depth
+    transition: 'background-color 0.3s ease, border 0.3s ease, box-shadow 0.3s ease', // Smooth transition
+    borderBottom: `1px solid ${theme.palette.divider}`,
+    borderRadius:"10px 10px 0px 0px"
+    
+  }));
+
+  const GlassmorphicBox = styled(Box)(({theme})=>({
+    backgroundColor: 'rgba(255, 255, 255, 0.45)',
+    backdropFilter: 'blur(6px) saturate(150%)',
+    WebkitBackdropFilter: 'blur(6px) saturate(150%)', // For Safari support
+    border: '1px solid rgba(209, 213, 219, 0.3)', // Semi-transparent border
+    boxShadow: theme.shadows[3],
+    transition: 'background-color 0.3s ease, border 0.3s ease, box-shadow 0.3s ease', // Smooth transition
+    ...scrollBarStyles
+    
+  }))
+
+
   const PostCard = styled(Card)(({ theme }) => ({
     marginTop:theme.spacing(2),
     marginBottom: theme.spacing(2),
-    width: '100%',
-    color: '#000000',
+    maxWidth: '100%',
+    color: '#ffffff',
     padding: '0px',
-    backgroundColor: 'rgba(255, 255, 255, 0.65)', // Semi-transparent background
-    backdropFilter: 'blur(6px) saturate(200%)',
-    WebkitBackdropFilter: 'blur(6px) saturate(200%)', // For Safari support
-    border: '1px solid rgba(209, 213, 219, 0.6)', // Semi-transparent border
-    boxShadow: theme.shadows[3],
-    transition: 'background-color 0.3s ease, border 0.3s ease, box-shadow 0.3s ease', // Smooth transition
-    '&:hover': {
-      backgroundColor: 'rgba(255, 255, 255, 0.75)', // Slightly more opaque background
-      border: '1px solid rgba(209, 213, 219, 0.7)', // Slightly more opaque border
-      boxShadow: theme.shadows[6], // Increase box shadow on hover
-    },
+    backgroundColor:'transparent',
+    boxShadows : theme.shadows[6],
+    margin:'20px 10px 20px 10px'
   }));
   
   const PostContent = styled(CardContent)(({ theme }) => ({
@@ -77,15 +114,28 @@ const StyledModal = styled(Modal)(({ theme }) => ({ // Use destructuring to acce
     paddingTop: '10px', 
     boxShadow: 3,  
     marginBottom: '10px',
-    backgroundColor: 'rgba(255, 255, 255, 0.65)', // Semi-transparent background
-    backdropFilter: 'blur(6px) saturate(200%)',
-    WebkitBackdropFilter: 'blur(6px) saturate(200%)', // For Safari support
-    border: '1px solid rgba(209, 213, 219, 0.6)', // Semi-transparent border
-    transition: 'background-color 0.3s ease, border 0.3s ease, box-shadow 0.3s ease', // Smooth transition
+    backgroundColor: 'transparent',
+    boxShadow: theme.shadows[3],
+    margin:'10px',
+    minHeight:'200px'
+
 
   }))
 
 
+  const GlassmorphicCardCommentInput = styled(Card)(({theme})=>({
+  
+    alignItems: 'center',
+    padding: '10px', boxShadow: 3,
+    borderRadius: '10px',
+    marginBottom: '20px',
+    backgroundColor: 'rgba(255, 255, 255, 0.65)',
+    backdropFilter: 'blur(8px) saturate(180%)',
+    WebkitBackdropFilter: 'blur(8px) saturate(180%)',
+    border: '1px solid rgba(209, 213, 219, 0.6)',
+  }))
+
+  
 
 
 const EnlargedQuery = React.memo(({ open, onClose, post, relativeTime, isLiked, likeCount, handleLike, handleUnlike, setErrorFlag, setCommentCount, setAnswerCount, followStatus, handleFollow, navigateToOtherUserProfile}) => {
@@ -355,8 +405,8 @@ const handleRemoveAnswers = (answerId) => {
     <ThemeProvider theme={theme}> {/* Wrap your components with ThemeProvider */}
       <StyledModal open={open} onClose={onClose} sx={{minWidth: 'fit-content' }}  >
         
-          <div  style={{backgroundImage: 'linear-gradient(-45deg, #FFC796 0%, #FF6B95 100%)', width:'500px', position:'relative', borderRadius:'20px'}}>
-          <AppBar position="sticky" style={{borderRadius:"10px 10px 0px 0px", backgroundColor: 'rgba(0, 0, 0, 0.8)',backdropFilter: 'blur(5px) saturate(150%)',WebkitBackdropFilter: 'blur(5px) saturate(150%)',}}>
+          <div  style={{ width:'500px', position:'relative', borderRadius:'20px'}}>
+          <GlassmorphicAppBar position="sticky" style={{borderRadius:"10px 10px 0px 0px", }}>
               <Toolbar>
                 <Typography variant="h6" component="div" sx={{ flexGrow: 1 , color:'#ffffff'}}>
                   {post?.user?.name}'s Query
@@ -365,9 +415,9 @@ const handleRemoveAnswers = (answerId) => {
                   <CloseIcon />
                 </IconButton>
               </Toolbar>
-          </AppBar>
+          </GlassmorphicAppBar>
 
-          <div style={{width:"100%", margin:'0', maxHeight:'60vh', overflowY:'auto', }} id="commentsModal">
+          <GlassmorphicBox  style={{width:"100%", margin:'0', maxHeight:'60vh', overflowY:'auto', }} id="commentsModal">
                   <PostCard>
                               <CardHeader
                                   avatar={<Avatar src={post?.user?.image?.url || post.googleProfilePicture || fallbackImage} onClick={navigateToOtherUserProfile} />}
@@ -377,21 +427,22 @@ const handleRemoveAnswers = (answerId) => {
                                           {post?.user?.name}
                                       </Typography>
                                       <Typography variant="body2" component="span" sx={{ marginLeft: 1 }}>
-                                          <span style={{ color: 'black' }}>•</span> 
-                                          {followStatus !== 'notFollowing' && (<span style={{ color: followStatus === 'following' ? 'blue' : 'black', cursor: 'pointer' }}>
-                                                {followStatus}
-                                            </span>)}
+                                        <span style={{ color: 'black' }}>•</span>
+                                        {followStatus !== 'notFollowing' && (<span style={{ marginLeft:'10px', color: followStatus === 'following' ? 'rgba(0, 0, 100, 0.8)' : '(255, 255, 255, 1)', cursor: 'pointer' }}>
+                                            {followStatus}
+                                        </span>)}
 
-                                            {followStatus === 'notFollowing' && (<span style={{ color: 'red', cursor: 'pointer' }} onClick={handleFollow}>
-                                                Follow
-                                            </span>)}
-                                      </Typography>
+                                        {followStatus === 'notFollowing' && (<span style={{ color: 'rgba(100,0,0, 0.8)', cursor: 'pointer' , marginLeft:'10px'}} onClick={handleFollow}>
+                                            Follow
+                                        </span>)}
+                                    </Typography>
                                       </Box>
                                   }
                                   subheader={relativeTime}
+                                  subheaderTypographyProps={{ style: { color: '#ffffff' } }}
                                   action={
                                   <>
-                                      <IconButton aria-label="settings" onClick={handleClickMenu}>
+                                      <IconButton aria-label="settings" onClick={handleClickMenu} sx={{color:'#ffffff'}}>
                                           <MoreVert />
                                       </IconButton>
                                       <Menu
@@ -446,11 +497,11 @@ const handleRemoveAnswers = (answerId) => {
                                 <Box display="flex" justifyContent="space-between" alignItems="center" marginBottom="5px" width="100%">
                                     
                                     <Box display="flex" justifyContent="space-between" alignItems="center" marginBottom="0px" width="100%">
-                                        <Button variant="outlined" size="small" style={{ background: theme.palette.ternaryButton.main, borderRadius: '5px', marginRight: '10px' }}>
-                                            <HelpOutline style={{ color: "#c70039" }} />
+                                        <Button variant="outlined" size="small" style={{ background: 'rgba(255, 255, 255, 0.65)', borderRadius: '5px', marginRight: '10px' }}>
+                                            <HelpOutline style={{ color: 'rgba(150, 0, 0, 0.6)' }} />
                                             <span style={{ color: "#363636" }}>Query</span>
                                         </Button>
-                                        <Button variant="outlined" size="small" style={{ background: theme.palette.ternaryButton.main, borderRadius: '5px', color: "#363636" }}>
+                                        <Button variant="outlined" size="small" style={{background: 'rgba(255, 255, 255, 0.65)', borderRadius: '5px', color: "#363636" }}>
                                             <Tag />
                                             {post.topic || "Botany"}
                                         </Button>
@@ -466,7 +517,7 @@ const handleRemoveAnswers = (answerId) => {
                                       
                                   )}
                                   
-                                  <Typography variant="body2">{post.description}</Typography>
+                                  <Typography variant="body2" sx={{minHeight:'50px'}}>{post.description}</Typography>
                               </PostContent>
                               <PostActions>
                                   <Box display="flex" alignItems="center">
@@ -515,7 +566,7 @@ const handleRemoveAnswers = (answerId) => {
                                               next={fetchMoreComments}
                                               hasMore={hasMoreComments}
                                               loader={<CommentLoading count={4} />}
-                                              endMessage={<Box>No more comments</Box>}
+                                              endMessage={<Box sx={{textAlign:'center', color:'#ffffff'}}>No more comments</Box>}
                                               scrollableTarget="commentsModal"
                                               >
                                               {comments.length === 0 && !isCommentsLoading && (
@@ -540,7 +591,7 @@ const handleRemoveAnswers = (answerId) => {
                                                 next={fetchMoreAnswers}
                                                 hasMore={hasMoreAnswers}
                                                 loader={<CommentLoading count={4}  />}
-                                                endMessage={<Box>No more answers</Box>}
+                                                endMessage={<Box sx={{textAlign:'center', color:'#ffffff'}}>No more answers</Box>}
                                                 scrollableTarget="commentsModal"
                                                 >
                                                 
@@ -557,15 +608,13 @@ const handleRemoveAnswers = (answerId) => {
                                   ) }
                   </CommentContainerCard>
 
-          </div>
+          </GlassmorphicBox >
       
           
           {/* comment box here */}
 
-          <Card sx={{  alignItems: 'center', padding: '10px 10px 5px 5px', boxShadow: 3, borderRadius: '10px', marginBottom: '0px', backgroundColor: 'rgba(0,0,0, 0.1)',
-              backdropFilter: 'blur(6px) saturate(200%)',
-              WebkitBackdropFilter: 'blur(6px) saturate(200%)',
-              border: '1px solid rgba(209, 213, 219, 0.6)', 
+          <GlassmorphicCardCommentInput sx={{  alignItems: 'center', padding: '10px 10px 5px 5px', boxShadow: 3, borderRadius: '10px', marginBottom: '0px',
+              
                }}>
     
               <Box sx={{ flexGrow: 1,display: 'flex', alignItems: 'center',justifyItems:'center',paddingTop:'10px' }}>
@@ -576,47 +625,63 @@ const handleRemoveAnswers = (answerId) => {
                       sx={{ width: 56, height: 56, marginRight: '16px' ,}} 
                   />
 
-                  <TextField
-                  value={commentContent}
-                  onChange={handleCommentChange}
-                  fullWidth
-                  placeholder="Add a comment..."
-                  variant="standard"
-                  multiline
-                  sx={{
-                      backgroundColor: theme.palette.textFieldbg.main,
-                      borderRadius: '25px',
-                      borderColor:theme.palette.textFieldbg.main,
-                      boxShadow: `inset 1px 1px ${theme.palette.buttonOutline.main}`,
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      padding: '10px 20px',
-                      textTransform: 'none',
-                      maxHeight:"80px",
-                      overflowY:"auto",
-                      color: theme.palette.text.primary,
-                      fontWeight: 'normal',
-                      '&:hover': {
-                      backgroundColor: theme.palette.textFieldbgEnhanced.main, 
-                      },
-                  }}
-                  InputProps={{
-                      notched: 'false',
-                  }}
-                  />
+<TextField
+  value={commentContent}
+  onChange={handleCommentChange}
+  fullWidth
+  placeholder="Add a comment..."
+  variant="standard"
+  multiline
+  sx={{
+    borderRadius: '15px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: '10px 20px',
+    textTransform: 'none',
+    maxHeight: "80px",
+    overflowY: "auto",
+    color: theme.palette.text.primary,
+    fontWeight: 'normal',
+    backgroundColor: 'rgba(255, 255, 255, 0.8)', // Semi-transparent background
+    border: '1px solid rgba(255, 255, 255, 0.4)', // Light border for the glass effect
+    backdropFilter: 'blur(10px)', // Blur for the glass effect
+    boxShadow: '0 4px 30px rgba(0, 0, 0, 0.1)', // Subtle shadow for depth
+
+    '& .MuiOutlinedInput-root': {
+      padding: 0, // To remove the default padding for multiline TextField
+      '& fieldset': {
+        borderColor: 'rgba(255, 255, 255, 0.2)', // Border color of the TextField
+      },
+      '&:hover fieldset': {
+        borderColor: 'rgba(255, 255, 255, 0.4)', // Border color on hover
+      },
+      '&.Mui-focused fieldset': {
+        borderColor: 'rgba(255, 255, 255, 0.6)', // Border color when focused
+      },
+    },
+  }}
+  InputProps={{
+    notched: false,
+    style: {
+      height: "100%",
+      overflowY: "auto",
+      display: "block",
+    },
+  }}
+/>
               
               </Box>
                   <Box sx={{ display: 'flex', justifyContent: 'space-around', marginTop: '10px' }}>
-                  <Button startIcon={<Comment />} sx={{ color: 'red' }} onClick={handleCommentSubmit}>
+                  <Button startIcon={<Comment />} sx={{ color: 'rgba(200,0,0, 1)' }} onClick={handleCommentSubmit}>
                       Comment
                   </Button>
-                  <Button startIcon={<CheckCircle />} sx={{ color: 'green' }} onClick={handleAnswerSubmit} >
+                  <Button startIcon={<CheckCircle />} sx={{ color: 'rgba(0,200,0, 1)' }} onClick={handleAnswerSubmit} >
                       Answer
                   </Button>
                   </Box>
               
-          </Card>
+          </GlassmorphicCardCommentInput>
 
           </div>
       {/* <AppBar position="static" style={{height:'20px', backgroundColor:'#ffff', minWidth:'100%', bottom:'0', overflowY: 'hidden'}}> Hi </AppBar> */}

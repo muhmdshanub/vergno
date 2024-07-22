@@ -14,10 +14,29 @@ import { useLocation } from 'react-router-dom';
 import ErrorAlertDialog from '../ErrorAlertDialoge.jsx';
 
 
+
+const scrollBarStyles = {
+  '&::-webkit-scrollbar': {
+    width: '4px',
+  },
+  '&::-webkit-scrollbar-thumb': {
+    backgroundColor: 'rgba(255, 255, 255, 0.75)',
+    borderRadius: '10px',
+  },
+  '&::-webkit-scrollbar-thumb:hover': {
+    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+  },
+  '&::-webkit-scrollbar-track': {
+    backgroundColor: 'rgba(255, 255, 255, 0.3)',
+  },
+};
+
+
 const StyledModal = styled(Modal)(({ theme }) => ({ // Use destructuring to access the theme
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
+    backgroundColor:'transparent',
     
     
   }));
@@ -29,36 +48,83 @@ const FormContainer = styled(Box)(({ theme }) => ({
     flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'center',
-    background:theme.palette.primary.main,
+    
     minWidth:'fit-content',
     borderRadius: '4px',
 }));
+
+const GlassmorphicAppBar = styled(AppBar)(({ theme }) => ({
+  backgroundColor: 'rgba(255, 255, 255, 0.45)', // Semi-transparent background
+  backdropFilter: 'blur(6px) saturate(150%)', // Blur and saturate for the glass effect
+  WebkitBackdropFilter: 'blur(6px) saturate(150%)', // For Safari support
+  border: '1px solid rgba(209, 213, 219, 0.3)', // Semi-transparent border
+  boxShadow: theme.shadows[3], // Subtle shadow for depth
+  transition: 'background-color 0.3s ease, border 0.3s ease, box-shadow 0.3s ease', // Smooth transition
+  borderBottom: `1px solid ${theme.palette.divider}`,
+  borderRadius:"10px 10px 0px 0px"
+  
+}));
+
+const GlassmorphicBox = styled(Box)(({theme})=>({
+  backgroundColor: 'rgba(255, 255, 255, 0.45)',
+  backdropFilter: 'blur(6px) saturate(150%)',
+  WebkitBackdropFilter: 'blur(6px) saturate(150%)', // For Safari support
+  border: '1px solid rgba(209, 213, 219, 0.3)', // Semi-transparent border
+  boxShadow: theme.shadows[3],
+  transition: 'background-color 0.3s ease, border 0.3s ease, box-shadow 0.3s ease', // Smooth transition
+  ...scrollBarStyles
+  
+}))
   
 const StyledTextField = styled(TextField)(({ theme }) => ({
-    marginBottom: '10px',
-    width:'400px',
-    borderRadius: '4px',
-    background: theme.palette.textFieldbg.main,
+  marginBottom: '20px',
+  width: '400px',
+  borderRadius: '0.4rem',
+  backgroundColor: 'rgba(255, 255, 255, 0.8)', // Semi-transparent background
+  border: '1px solid rgba(255, 255, 255, 0.4)', // Light border for the glass effect
+  backdropFilter: 'blur(10px)', // Blur for the glass effect
+  boxShadow: '0 4px 30px rgba(0, 0, 0, 0.1)', // Subtle shadow for depth
+  color: `${theme.palette.text.primary}`, // Ensure text color is readable
+  '& .MuiOutlinedInput-root': {
+    '& fieldset': {
+      borderColor: 'rgba(255, 255, 255, 0.2)', // Border color of the TextField
+    },
+    '&:hover fieldset': {
+      borderColor: 'rgba(255, 255, 255, 0.4)', // Border color on hover
+    },
+    '&.Mui-focused fieldset': {
+      borderColor: 'rgba(255, 255, 255, 0.6)', // Border color when focused
+    },
+  },
 }));
 
 const StyledButton = styled(Button)(({ theme }) => ({
-    marginTop: '20px',
-    width:'400px',
-    backgroundColor: `${theme.palette.submitButton.main}`,
-    color: '#fff',
-    '&:hover': {
-      backgroundColor: `${theme.palette.submitButtonEnhanced.main}`,
-    },
-    marginBottom:'10px'
+  width: '400px',
+  backgroundColor: 'rgba(62, 166, 250, 0.8)', // submitButton main color with 50% opacity
+  color: '#ffffff',
+  marginTop: '20px',
+  border: '1px solid rgba(255, 255, 255, 0.8)', // Light border for the glass effect
+  backdropFilter: 'blur(10px) saturate(180%)', // Blur for the glass effect
+  boxShadow: '0 4px 30px rgba(0, 0, 0, 0.1)', // Light shadow for depth
+  borderRadius: '0.4rem',
+  '&:hover': {
+    backgroundColor: 'rgba(0, 141, 255, 0.9)', // submitButtonEnhanced main color with 50% opacity
+  },
 }));
+
 
 const UploadButton = styled(Button)(({ theme }) => ({
     width: '400px',
-    backgroundColor: `${theme.palette.secondaryButton.main}`,
-    color: '#fff',
-    '&:hover': {
-      backgroundColor: `${theme.palette.secondaryButtonEnhanced.main}`,
-    },
+    backgroundColor: 'rgba(7, 135, 176, 0.8)', // secondaryButton main color with 50% opacity
+  color: '#ffffff',
+  marginTop: '10px',
+  border: '1px solid rgba(255, 255, 255, 0.4)', // Light border for the glass effect
+  backdropFilter: 'blur(10px) saturate(180%)', // Blur for the glass effect
+  boxShadow: '0 4px 30px rgba(0, 0, 0, 0.1)', // Light shadow for depth
+  borderRadius: '0.4rem',
+  '&:hover': {
+    backgroundColor: 'rgba(6, 124, 161, 0.5)', // secondaryButtonEnhanced main color with 50% opacity
+  },
     marginBottom: '10px',
   }));
 
@@ -284,18 +350,18 @@ const handleAddPerspective = async () =>{
       <ThemeProvider theme={theme}> {/* Wrap your components with ThemeProvider */}
         <StyledModal open={openModal} onClose={onCloseModal} sx={{minWidth: 'fit-content',borderRadius:'100px' }} >
           
-            <div  style={{background : theme.palette.backgroundColor?.main, width:'500px', position:'relative',borderRadius:'10px'}}>
-            <AppBar position="sticky" style={{borderRadius:"10px 10px 0px 0px"}}>
+            <div  style={{ width:'500px', position:'relative',borderRadius:'10px'}}>
+            <GlassmorphicAppBar position="sticky" style={{}}>
                 <Toolbar>
-                  <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+                  <Typography variant="h6" component="div" sx={{ flexGrow: 1, color:'#ffffff' }}>
                     Add Perspective
                   </Typography>
                   <IconButton edge="end" color="inherit" aria-label="close" onClick={onCloseModal}>
                     <CloseIcon />
                   </IconButton>
                 </Toolbar>
-            </AppBar>
-              <Box p={2} width="100%" sx={{overflowY:"auto",maxHeight:"70vh"}}>
+            </GlassmorphicAppBar>
+              <GlassmorphicBox p={2} width="100%" sx={{overflowY:"auto",maxHeight:"70vh"}}>
                 <FormContainer>
                   <StyledTextField fullWidth label="Title" variant="outlined" margin="normal" value={title}  onChange={(e) => {
                           const titleValue = e.target.value;
@@ -391,7 +457,7 @@ const handleAddPerspective = async () =>{
                                                       )
                                                     }            
                   <Autocomplete
-                    style={{marginBottom: '10px', width:'400px', background: theme.palette.textFieldbg.main,}}
+                    style={{marginBottom: '10px', width:'400px',backgroundColor: 'rgba(255, 255, 255, 0.8)', padding:'5px 10px', borderRadius:'5px' }}
                     freeSolo
                     id="free-solo-2-demo"
                     disableClearable
@@ -424,7 +490,7 @@ const handleAddPerspective = async () =>{
 
                   
                 </FormContainer>
-              </Box>
+              </GlassmorphicBox>
 
         
 

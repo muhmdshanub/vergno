@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useSelector } from 'react-redux';
-import { Snackbar, Alert, Box, Container, Grid, Typography, FormControl, Select, MenuItem, useTheme, useMediaQuery, Hidden } from '@mui/material';
+import { Snackbar, Alert, Box, Container, Grid, Typography, FormControl, Select, MenuItem, useTheme, useMediaQuery, Hidden, styled } from '@mui/material';
 import UserProfileCard from '../components/user/UserProfileCard';
 import TopicsCard from '../components/home/Topicscard';
 import GroupsCard from '../components/home/GroupsCard';
@@ -12,6 +12,22 @@ import LoadingModal from '../components/LoadingModal';
 import QueryPostCardAdminSkeleton from '../components/skeletons/QueryCardAdminSkeleton';
 import { useGetTopicsSuggestionsForHomeQuery } from '../slices/api_slices/topicsApiSlice';
 import ErrorAlertDialog from '../components/ErrorAlertDialoge';
+
+
+const GlassmorphicFormControl = styled(FormControl)(({theme})=>({
+  
+    m: 1,
+    minWidth: 120,
+    backgroundColor: 'rgba(7, 135, 176, 0.75)', // Semi-transparent background
+    backdropFilter: 'blur(6px) saturate(150%)', // Blur and saturation for the glass effect
+    WebkitBackdropFilter: 'blur(8px) saturate(180%)', // For Safari support
+    border: '1px solid rgba(255, 255, 255, 0.3)', // Semi-transparent border
+    borderRadius: '8px',
+    boxShadow: '0 4px 30px rgba(0, 0, 0, 0.1)', // Subtle shadow for depth
+    transition: 'background-color 0.3s ease, border 0.3s ease, box-shadow 0.3s ease', // Smooth transition
+  
+}))
+
 
 const HomeScreen = () => {
   const theme = useTheme();
@@ -156,7 +172,7 @@ const HomeScreen = () => {
         <Grid container spacing={1} style={{ justifyContent: 'space-between' }}>
           <Hidden mdDown>
             <Grid item md={3} sx={{ marginRight: '60px' }}>
-              <Box sx={{ border: '1px solid red', padding: '20px', justifyContent: 'space-between', minWidth: leftNavWidth }}>
+              <Box sx={{  padding: '20px', justifyContent: 'space-between', minWidth: leftNavWidth }}>
                 <div style={{ marginBottom: '20px' }}>
                   <UserProfileCard />
                 </div>
@@ -171,12 +187,12 @@ const HomeScreen = () => {
           </Hidden>
           
           <Grid item xs={12} md={8} sx={{ alignItems: 'center', justifyContent: 'center', justifyItems: 'center' }}>
-            <Box sx={{ border: '1px solid blue', padding: '20px', justifyContent: 'center', minWidth: '500px', maxWidth: '500px' }}>
+            <Box sx={{  padding: '20px', justifyContent: 'center', minWidth: '500px', maxWidth: '500px' }}>
               <div style={{ marginBottom: '20px' }}>
                 <AddPost />
               </div>
               <Box sx={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px' }}>
-                <FormControl sx={{ m: 1, minWidth: 120, backgroundColor: theme.palette.secondaryButton.main, borderRadius: '8px' }}>
+                <GlassmorphicFormControl >
                   <Select
                     value={postType}
                     onChange={(e) => handlePostTypeChange(e.target.value)}
@@ -188,8 +204,8 @@ const HomeScreen = () => {
                     <MenuItem value="queries">Queries</MenuItem>
                     <MenuItem value="perspectives">Perspectives</MenuItem>
                   </Select>
-                </FormControl>
-                <FormControl sx={{ m: 1, minWidth: 120, backgroundColor: theme.palette.secondaryButton.main, borderRadius: '8px' }}>
+                </GlassmorphicFormControl>
+                <GlassmorphicFormControl >
                   <Select
                     value={postSource}
                     onChange={(e) => handlePostSourceChange(e.target.value)}
@@ -202,9 +218,9 @@ const HomeScreen = () => {
                     <MenuItem value="from_topics">From Topics</MenuItem>
                     <MenuItem value="from_groups">From Groups</MenuItem>
                   </Select>
-                </FormControl>
+                </GlassmorphicFormControl>
               </Box>
-              <Box sx={{ marginBottom: '20px' , minheight:"3000px"}}>
+              <Box sx={{ marginBottom: '20px' , minheight:"3000px", backgroundColor:'transparent'}}>
                 { (isLoading) ? (
                   <>
                     <QueryPostCardAdminSkeleton />

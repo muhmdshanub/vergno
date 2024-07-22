@@ -19,10 +19,12 @@ const UserProfileCard = () => {
       
       maxWidth: '100%', // Ensure it doesn't overflow its parent
       overflow: 'hidden', // Hide any overflow content
-      backgroundColor: 'rgba(255, 255, 255, 0.8)',
-      backdropFilter: 'blur(6px) saturate(200%)',
-      WebkitBackdropFilter: 'blur(6px) saturate(200%)',
-      border: '1px solid rgba(209, 213, 219, 0.6)',
+      backgroundColor: 'rgba(255, 255, 255, 0.65)',
+      backdropFilter: 'blur(6px) saturate(150%)',
+      WebkitBackdropFilter: 'blur(6px) saturate(150%)',
+      border: '1px solid rgba(209, 213, 219, 0.45)',
+      boxShadow: theme.shadows[3],
+      transition: 'background-color 0.3s ease, border 0.3s ease, box-shadow 0.3s ease', // Smooth transition
     }} >
       <Avatar 
         alt={userInfo.name} 

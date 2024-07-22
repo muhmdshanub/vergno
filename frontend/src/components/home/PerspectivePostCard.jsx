@@ -27,17 +27,17 @@ const PostCard = styled(Card)(({ theme }) => ({
 const GlassmorphicCard = styled(Card)(({ theme }) => ({
     marginBottom: theme.spacing(2),
     width: '100%',
-    color: '#000000',
+    color: '#ffffff',
     padding: '0px',
     borderRadius: '10px',
     backgroundColor: 'rgba(255, 255, 255, 0.45)', // Semi-transparent background
-    backdropFilter: 'blur(10px) saturate(200%)',
-    WebkitBackdropFilter: 'blur(10px) saturate(200%)', // For Safari support
+    backdropFilter: 'blur(8px) saturate(180%)',
+    WebkitBackdropFilter: 'blur(8px) saturate(180%)', // For Safari support
     border: '1px solid rgba(209, 213, 219, 0.3)', // Semi-transparent border
     boxShadow: theme.shadows[3],
     transition: 'background-color 0.3s ease, border 0.3s ease, box-shadow 0.3s ease', // Smooth transition
     '&:hover': {
-      backgroundColor: 'rgba(255, 255, 255, 0.55)', // Slightly more opaque background
+      backgroundColor: 'rgba(255, 255, 255, 0.65)', // Slightly more opaque background
       border: '1px solid rgba(209, 213, 219, 0.4)', // Slightly more opaque border
       boxShadow: theme.shadows[6], // Increase box shadow on hover
     },
@@ -207,8 +207,8 @@ const navigateToOtherUserProfile=() =>{
 
     return (
         <GlassmorphicCard>
-            <CardHeader
-                avatar={<Avatar src={post?.user?.image?.url || post?.user?.googleProfilePicture || fallbackImage} sx={{cursor:'pointer'}} onClick={navigateToOtherUserProfile} />}
+            <CardHeader style={{color:'#ffffff'}}
+                avatar={<Avatar src={post?.user?.image?.url || post?.user?.googleProfilePicture || fallbackImage} sx={{cursor:'pointer', color:'#ffffff'}} onClick={navigateToOtherUserProfile} />}
                 title={
                     <Box display="flex" alignItems="center">
                         <Typography variant="subtitle1" sx={{cursor:'pointer'}} onClick={navigateToOtherUserProfile}>
@@ -216,20 +216,21 @@ const navigateToOtherUserProfile=() =>{
                         </Typography>
                         <Typography variant="body2" component="span" sx={{ marginLeft: 1 }}>
                             <span style={{ color: 'black' }}>•</span>
-                            {followStatus !== 'notFollowing' && (<span style={{ color: followStatus === 'following' ? 'blue' : 'black', cursor: 'pointer' }}>
+                            {followStatus !== 'notFollowing' && (<span style={{ marginLeft:'10px', color: followStatus === 'following' ? 'rgba(0, 0, 100, 0.8)' : '(255, 255, 255, 1)', cursor: 'pointer' }}>
                                 {followStatus}
                             </span>)}
 
-                            {followStatus === 'notFollowing' && (<span style={{ color: 'red', cursor: 'pointer' }} onClick={handleFollow}>
+                            {followStatus === 'notFollowing' && (<span style={{ color: 'rgba(100,0,0, 0.8)', cursor: 'pointer' , marginLeft:'10px'}} onClick={handleFollow}>
                                 Follow
                             </span>)}
                         </Typography>
                     </Box>
                 }
                 subheader={relativeTime}
+                subheaderTypographyProps={{ style: { color: '#ffffff' } }}
                 action={
                     <>
-                        <IconButton aria-label="settings" onClick={handleClickMenu}>
+                        <IconButton aria-label="settings" onClick={handleClickMenu} sx={{color:'#ffffff'}}>
                             <MoreVert />
                         </IconButton>
                         <Menu
@@ -286,11 +287,11 @@ const navigateToOtherUserProfile=() =>{
                     
                     
                     <Box display="flex" justifyContent="space-between" alignItems="center" marginBottom="0px" width="100%">
-                        <Button variant="outlined" size="small" style={{ background: theme.palette.ternaryButton.main, borderRadius: '5px', marginRight: '10px' }}>
-                            <LightbulbIcon style={{ color: "#32de84" }} />
+                        <Button variant="outlined" size="small" style={{ background: 'rgba(255, 255, 255, 0.65)', borderRadius: '5px', marginRight: '10px' }}>
+                            <LightbulbIcon style={{ color: 'rgba(0, 150,0, 0.6)' }} />
                             <span style={{ color: "#363636" }}>perspective</span>
                         </Button>
-                        <Button variant="outlined" size="small" style={{ background: theme.palette.ternaryButton.main, borderRadius: '5px', color: "#363636" }}>
+                        <Button variant="outlined" size="small" style={{ background: 'rgba(255, 255, 255, 0.65)', borderRadius: '5px', color: "#363636" }}>
                             <Tag />
                             {post.topic || "Topic"}
                         </Button>
@@ -304,7 +305,7 @@ const navigateToOtherUserProfile=() =>{
                         <EnlargedImagePreview open={imageOpen} handleClose={handleImageClose} imgSrc={post.image.url} />
                     </>
                 )}
-                <Box sx={{width:"100%"}}>
+                <Box sx={{width:"100%", minHeight:'50px'}}>
                     <Typography variant="body2">
                             {displayDescription}
                             {isLongText && (
@@ -326,10 +327,10 @@ const navigateToOtherUserProfile=() =>{
                     </Box>
 
                     <Box onClick={handlePerspectiveOpen}  sx={{display:"flex" , justifyContent:"center", alignContent:"center", alignItems:"center"}}>   
-                        <IconButton aria-label="comment"  style={{ color: theme.palette.secondary.main }}>
+                        <IconButton aria-label="comment"  style={{ color: theme.palette.primary.main }}>
                             <Comment />
                         </IconButton>
-                        <Typography variant="body2" style={{ color: theme.palette.secondary.main, fontSize: "0.7rem", cursor: "pointer " }}>{commentCount} comments</Typography>
+                        <Typography variant="body2" style={{ color: theme.palette.primary.main, fontSize: "0.7rem", cursor: "pointer " }}>{commentCount} comments</Typography>
                     </Box>
                     </Box>
                 {/* <Box display="flex" alignItems="center">
