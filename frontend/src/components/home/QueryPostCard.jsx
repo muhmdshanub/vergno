@@ -9,10 +9,10 @@ import EnlargedQuery from './EnlargedQuery';
 import { useSelector } from 'react-redux';
 import { formatDistanceToNow } from 'date-fns';
 import { useLikeQueryMutation, useUnlikeQueryMutation } from '../../slices/api_slices/queryApiSlice'
-import { useReportPostMutation } from '../../slices/api_slices/allPostsApiSlice';
+import { useReportPostMutation, useSavePostMutation, useUnsavePostMutation } from '../../slices/api_slices/allPostsApiSlice';
 import { useSendFollowRequestMutation} from '../../slices/api_slices/peoplesApiSlice';
 import { useNavigate } from 'react-router-dom';
-
+import { useLocation } from 'react-router-dom';
 
 
 const GlassmorphicCard = styled(Card)(({ theme }) => ({
@@ -67,6 +67,9 @@ const QueryPostCard = React.memo(({ post, setErrorFlag }) => {
     const theme = useTheme();
     const navigate = useNavigate();
     const {fallbackImage} = useSelector(state => state.fallbackImage)
+    const location = useLocation();
+
+
     const [imageOpen, setImageOpen] = useState(false);
     const [queryOpen, setQueryOpen] = useState(false);
     const [expandedDescription, setExpandedDescription] = useState(false);
@@ -75,6 +78,8 @@ const QueryPostCard = React.memo(({ post, setErrorFlag }) => {
     const [likeCount, setLikeCount] = useState(post?.likeCount);
     const [commentCount, setCommentCount] = useState(post?.commentCount || 0);
     const [answerCount, setAnswerCount] = useState(post?.answerCount || 0);
+    const [isSaved, setIsSaved] = useState(post?.isPostSaved || false);
+    const [savedPostId, setSavedPostId] = useState( post?.savedPostId || '');
 
     const handleImageOpen = () => setImageOpen(true);
     const handleImageClose = () => setImageOpen(false);
@@ -100,6 +105,9 @@ const QueryPostCard = React.memo(({ post, setErrorFlag }) => {
   const [sendFollowRequest] = useSendFollowRequestMutation();
 
   const [reportPost] = useReportPostMutation();
+
+  const[savePost] = useSavePostMutation();
+  const[unsavePost] = useUnsavePostMutation();
 
 
   const handleFollow = async () => {
@@ -139,6 +147,33 @@ const QueryPostCard = React.memo(({ post, setErrorFlag }) => {
     }
   };
 
+  const handleSaveQuery = async()=>{
+    try{
+
+        const response = await savePost({postType : 'Query', postId : post._id})
+        if(response?.data?.success){
+            setIsSaved(true)
+            setSavedPostId(response?.data?.savedPostId)
+            handleCloseMenu()
+        }
+        
+    }catch(error){
+        console.log("error while saving the query", post._id)
+    }
+  }
+
+  const handleUnsaveQuery = async()=>{
+    try{
+        const response = await unsavePost({ savedPostId : savedPostId})
+        if(response?.data?.success){
+            setIsSaved(false)
+            setSavedPostId('')
+            handleCloseMenu()
+        }
+    }catch(error){
+        console.log("error in un saving the query ", post._id)
+    }
+  }
 
 
     const [anchorEl, setAnchorEl] = useState(null);
@@ -247,6 +282,12 @@ const QueryPostCard = React.memo(({ post, setErrorFlag }) => {
                             }}
                         >
                             <MenuItem onClick={handleOpenDialog}>Report Query</MenuItem>
+                            { (location.pathname !== '/profile') && ( (!isSaved) ? (
+                                <MenuItem onClick={handleSaveQuery}>Save Query</MenuItem>
+                                ) : (
+                                <MenuItem onClick={handleUnsaveQuery}>UnSave Query</MenuItem> 
+                                )
+                            )}
                         </Menu>
 
                         <Dialog open={openDialog} onClose={handleCloseDialog}>
@@ -351,7 +392,7 @@ const QueryPostCard = React.memo(({ post, setErrorFlag }) => {
                     </Box> */}
                     
                 </Box>
-                <EnlargedQuery open={queryOpen} onClose={handleQueryClose} post={post} relativeTime={relativeTime}  isLiked={isLiked} likeCount={likeCount} handleLike={handleLike} handleUnlike={handleUnlike} setErrorFlag={setErrorFlag} setCommentCount={setCommentCount} setAnswerCount={setAnswerCount} handleFollow={handleFollow} followStatus={followStatus}  navigateToOtherUserProfile={navigateToOtherUserProfile} />
+                <EnlargedQuery open={queryOpen} onClose={handleQueryClose} post={post} relativeTime={relativeTime}  isLiked={isLiked} likeCount={likeCount} handleLike={handleLike} handleUnlike={handleUnlike} setErrorFlag={setErrorFlag} setCommentCount={setCommentCount} setAnswerCount={setAnswerCount} handleFollow={handleFollow} followStatus={followStatus}  navigateToOtherUserProfile={navigateToOtherUserProfile} isSaved={isSaved} handleSaveQuery={handleSaveQuery} handleUnsaveQuery={handleUnsaveQuery}  />
             </PostActions>
         </GlassmorphicCard>
     );

@@ -41,9 +41,26 @@ const getAllPostsValidator = [
 
   ]
 
+const validateSavePost = [
+    body('postType')
+      .exists().withMessage('Post type is required')
+      .isIn(['Query', 'Perspective']).withMessage('Invalid post type'),
+    body('postId')
+      .exists().withMessage('Post ID is required')
+      .isMongoId().withMessage('Invalid post ID')
+  ];
+
+  const validateUnsavePost = [
+    body('savedPostId')
+      .exists().withMessage('PostSaved ID is required')
+      .isMongoId().withMessage('Invalid PostSaved ID')
+  ];
+
 module.exports = {
     getAllPostsValidator,
     removeReportValidator,
     getAllQueriesForProfileValidator,
     getAllQueriesForOtherUserValidator,
+    validateSavePost,
+    validateUnsavePost,
 }

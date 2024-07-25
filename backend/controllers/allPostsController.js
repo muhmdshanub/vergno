@@ -4,8 +4,11 @@ const User = require("../models/user.js");
 const Follow = require('../models/follow');
 const Perspective = require('../models/perspective');
 const Query = require('../models/query');
+const QueryLike = require('../models/queryLike.js')
+const PerspectiveLike = require('../models/perspectiveLike.js')
 const ReportPost = require('../models/reportPost.js')
 const BlockUser = require('../models/blockUser.js')
+const PostSave = require('../models/PostSave.js')
 const ensureUniqueIds = require('../utils/ensureUniqueIds.js')
 const {
 
@@ -423,6 +426,7 @@ const getAllPerspectivesForUserProfile = asyncHandler(async (req, res) => {
 const getAllQueriesForOtherUser = asyncHandler(async (req, res) => {
   const currentUserId = new mongoose.Types.ObjectId(req.user._id);
   const requestedUserId = new mongoose.Types.ObjectId(req.query.userId);
+  const userId = req.user._id;
 
   try {
     // Check if the requested user exists
@@ -516,6 +520,25 @@ const getAllQueriesForOtherUser = asyncHandler(async (req, res) => {
         },
       },
       {
+        $lookup: {
+          from: 'postsaves',
+          let: { queryId: '$_id' },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $and: [
+                    { $eq: ['$post', '$$queryId'] },
+                    { $eq: ['$user', userId] },
+                  ],
+                },
+              },
+            },
+          ],
+          as: 'post_save',
+        }
+      },
+      {
         $project: {
           _id: 1,
           user: {
@@ -543,6 +566,8 @@ const getAllQueriesForOtherUser = asyncHandler(async (req, res) => {
           post_type: { $literal: 'queries' },
           post_source: { $literal: 'from_user' },
           isLikedByUser: { $cond: { if: { $gt: [{ $size: '$user_like' }, 0] }, then: true, else: false } },
+          isPostSaved: { $cond: { if: { $gt: [{ $size: '$post_save' }, 0] }, then: true, else: false } },
+          savedPostId: { $arrayElemAt: ['$post_save._id', 0] },
         },
       },
     ]);
@@ -557,6 +582,7 @@ const getAllQueriesForOtherUser = asyncHandler(async (req, res) => {
 const getAllPerspectivesForOtherUser = asyncHandler(async (req, res) => {
   const currentUserId = new mongoose.Types.ObjectId(req.user._id);
   const requestedUserId = new mongoose.Types.ObjectId(req.query.userId);
+  const userId = req.user._id;
 
   try {
     // Check if the requested user exists
@@ -650,6 +676,25 @@ const getAllPerspectivesForOtherUser = asyncHandler(async (req, res) => {
         },
       },
       {
+        $lookup: {
+          from: 'postsaves',
+          let: { queryId: '$_id' },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $and: [
+                    { $eq: ['$post', '$$queryId'] },
+                    { $eq: ['$user', userId] },
+                  ],
+                },
+              },
+            },
+          ],
+          as: 'post_save',
+        }
+      },
+      {
         $project: {
           _id: 1,
           user: {
@@ -676,6 +721,8 @@ const getAllPerspectivesForOtherUser = asyncHandler(async (req, res) => {
           post_type: { $literal: 'perspectives' },
           post_source: { $literal: 'from_user' },
           isLikedByUser: { $cond: { if: { $gt: [{ $size: '$user_like' }, 0] }, then: true, else: false } },
+          isPostSaved: { $cond: { if: { $gt: [{ $size: '$post_save' }, 0] }, then: true, else: false } },
+          savedPostId: { $arrayElemAt: ['$post_save._id', 0] },
         },
       },
     ]);
@@ -691,6 +738,7 @@ const getAllPerspectivesForOtherUser = asyncHandler(async (req, res) => {
 
 const getAllQueriesForTopic = asyncHandler(async (req, res) => {
   const { topicId, pageNum = 1, limitNum = 10 } = req.query;
+  const userId = req.user._id;
 
   try {
     const options = {
@@ -803,6 +851,25 @@ const getAllQueriesForTopic = asyncHandler(async (req, res) => {
         $limit: options.limit // Limit the number of records based on pagination
       },
       {
+        $lookup: {
+          from: 'postsaves',
+          let: { queryId: '$_id' },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $and: [
+                    { $eq: ['$post', '$$queryId'] },
+                    { $eq: ['$user', userId] },
+                  ],
+                },
+              },
+            },
+          ],
+          as: 'post_save',
+        }
+      },
+      {
         $project: {
           _id: 1,
           user: {
@@ -829,7 +896,9 @@ const getAllQueriesForTopic = asyncHandler(async (req, res) => {
           isBlocked: 1,
           post_type: { $literal: 'queries' },
           post_source: { $literal: 'from_topic' },
-          isLikedByUser: { $cond: { if: { $gt: [{ $size: '$user_like' }, 0] }, then: true, else: false } }
+          isLikedByUser: { $cond: { if: { $gt: [{ $size: '$user_like' }, 0] }, then: true, else: false } },
+          isPostSaved: { $cond: { if: { $gt: [{ $size: '$post_save' }, 0] }, then: true, else: false } },
+          savedPostId: { $arrayElemAt: ['$post_save._id', 0] },
         }
       }
     ];
@@ -847,7 +916,7 @@ const getAllQueriesForTopic = asyncHandler(async (req, res) => {
 
 const getAllPerspectivesForTopic = asyncHandler(async (req, res) => {
 
-  console.log('reached here')
+  const userId = req.user._id;
   const { topicId, pageNum = 1, limitNum = 10 } = req.query;
 
   try {
@@ -961,6 +1030,25 @@ const getAllPerspectivesForTopic = asyncHandler(async (req, res) => {
         $limit: options.limit // Limit the number of records based on pagination
       },
       {
+        $lookup: {
+          from: 'postsaves',
+          let: { queryId: '$_id' },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $and: [
+                    { $eq: ['$post', '$$queryId'] },
+                    { $eq: ['$user', userId] },
+                  ],
+                },
+              },
+            },
+          ],
+          as: 'post_save',
+        }
+      },
+      {
         $project: {
           _id: 1,
           user: {
@@ -987,7 +1075,9 @@ const getAllPerspectivesForTopic = asyncHandler(async (req, res) => {
           isBlocked: 1,
           post_type: { $literal: 'perspectives' },
           post_source: { $literal: 'from_topic' },
-          isLikedByUser: { $cond: { if: { $gt: [{ $size: '$user_like' }, 0] }, then: true, else: false } }
+          isLikedByUser: { $cond: { if: { $gt: [{ $size: '$user_like' }, 0] }, then: true, else: false } },
+          isPostSaved: { $cond: { if: { $gt: [{ $size: '$post_save' }, 0] }, then: true, else: false } },
+          savedPostId: { $arrayElemAt: ['$post_save._id', 0] },
         }
       }
     ];
@@ -1002,6 +1092,210 @@ const getAllPerspectivesForTopic = asyncHandler(async (req, res) => {
   }
 });
 
+
+const savePost = asyncHandler( async (req, res) => {
+
+  const { postType, postId } = req.body;
+  const userId = req.user._id;
+
+  
+
+  try {
+    // Determine the post model based on postType
+    const PostModel = postType === 'Query' ? Query : Perspective;
+
+    // Find the post
+    const post = await PostModel.findById(postId).populate('user');
+    if (!post) {
+      res.status(404)
+      throw new Error('Post not found')
+    }
+
+    // Check if the post owner is not blocked by the application
+    if (post.user.isBlocked) {
+      res.status(403)
+      throw new Error('Post owner is blocked by the application')
+    }
+
+    // Check if there is no block between the current user and the post owner
+    const blockExists = await BlockUser.findOne({
+      $or: [
+        { blocking_user_id: userId, blocked_user_id: post.user._id },
+        { blocking_user_id: post.user._id, blocked_user_id: userId }
+      ]
+    });
+
+    if (blockExists) {
+      res.status(403)
+      throw new Error('Cannot save post due to block between users')
+    }
+
+     // Check if the post is already saved by the user
+     const alreadySaved = await PostSave.findOne({
+        user: userId,
+        post: postId,
+        postType
+      });
+
+    if (alreadySaved) {
+      res.status(400);
+      throw new Error('Post already saved');
+    }
+
+    // Save the post
+    const postSave = new PostSave({
+      user: userId,
+      post: postId,
+      postType
+    });
+
+    await postSave.save();
+    res.status(201).json({ success : true, message: 'Post saved successfully', savedPostId : postSave._id });
+  } catch (error) {
+    console.error(error);
+    res.status(500)
+    throw new Error(`Server Error : ${error.message}`)
+  }
+})
+
+
+const unsavePost = asyncHandler( async (req, res) => {
+  
+
+  const { savedPostId } = req.body;
+  const userId = req.user._id;
+
+  try {
+    // Find the PostSave entry by ID
+    const postSave = await PostSave.findById(savedPostId);
+
+    // Check if the PostSave entry exists
+    if (!postSave) {
+      res.status(404)
+      throw new Error('Saved post not found')
+    }
+
+    // Check if the user matches the user in the PostSave entry
+    if (postSave.user.toString() !== userId.toString()) {
+      res.status(403)
+      throw new Error('User not authorized to unsave this post')
+    }
+
+    // Delete the PostSave entry
+    await PostSave.findByIdAndDelete(savedPostId);
+
+    res.status(200).json({ success: true, message: 'Post unsaved successfully' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: '' });
+    throw new Error(`Server error : ${error.message}`)
+  }
+})
+
+const getAllSavedPosts = async (req, res) => {
+  const userId = req.user._id; // Assuming the user ID is available in the request object
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 10;
+
+  try {
+    const savedPosts = await PostSave.find({ user: userId })
+      .sort({ savedAt: -1 })
+      .skip((page - 1) * limit)
+      .limit(limit);
+
+    const postIds = savedPosts.map((post) => post.post);
+    const postTypes = savedPosts.map((post) => post.postType);
+
+    const queries = await Query.find({ _id: { $in: postIds }, isBlocked: false })
+      .populate('user', '_id name image googleProfilePicture isBlocked')
+      .populate('topic', 'name');
+
+    const perspectives = await Perspective.find({ _id: { $in: postIds }, isBlocked: false })
+      .populate('user', '_id name image googleProfilePicture isBlocked')
+      .populate('topic', 'name');
+
+    const posts = [];
+
+    for (let i = 0; i < savedPosts.length; i++) {
+      let post;
+      if (postTypes[i] === 'Query') {
+        post = queries.find((q) => q._id.equals(postIds[i]));
+        if (post && !post.user.isBlocked) {
+          const user_like = await QueryLike.findOne({ query_id: post._id, user_id: userId });
+          const post_save = await PostSave.findOne({ post: post._id, user: userId });
+          posts.push({
+            _id: post._id,
+            user: {
+              _id: post.user._id,
+              name: post.user.name,
+              image: post.user.image,
+              googleProfilePicture: post.user.googleProfilePicture,
+            },
+            title: post.title,
+            image: post.image,
+            description: post.description,
+            likeCount: post.likeCount,
+            commentCount: post.commentCount,
+            answerCount: post.answerCount,
+            topic: post.topic.name,
+            posted_at: post.posted_at,
+            isResolved: post.isResolved,
+            isBlocked: post.isBlocked,
+            post_type: 'queries',
+            post_source: 'from_saved_posts',
+            isLikedByUser: !!user_like,
+            followStatus: 'following',
+            isPostSaved: !!post_save,
+            savedPostId: post_save._id,
+            postSavedAt: post_save.savedAt,
+          });
+        }
+      } else if (postTypes[i] === 'Perspective') {
+        post = perspectives.find((p) => p._id.equals(postIds[i]));
+        if (post && !post.user.isBlocked) {
+          const user_like = await PerspectiveLike.findOne({ perspective_id: post._id, user_id: userId });
+          const post_save = await PostSave.findOne({ post: post._id, user: userId });
+          posts.push({
+            _id: post._id,
+            user: {
+              _id: post.user._id,
+              name: post.user.name,
+              image: post.user.image,
+              googleProfilePicture: post.user.googleProfilePicture,
+            },
+            title: post.title,
+            image: post.image,
+            description: post.description,
+            likeCount: post.likeCount,
+            commentCount: post.commentCount,
+            topic: post.topic.name,
+            posted_at: post.posted_at,
+            isBlocked: post.isBlocked,
+            isResolved: post.isResolved,
+            createdAt: post.createdAt,
+            updatedAt: post.updatedAt,
+            post_type: 'perspectives',
+            post_source: 'from_saved_posts',
+            isLikedByUser: !!user_like,
+            followStatus: 'following',
+            isPostSaved: !!post_save,
+            savedPostId: post_save._id,
+            postSavedAt: post_save.savedAt,
+          });
+        }
+      }
+    }
+
+    
+
+    res.json({success: true,  posts });
+  } catch (error) {
+    console.error('Error fetching saved posts:', error);
+    res.status(500)
+    throw new Error(`Error fetching saved posts : ${error.message}`)
+  }
+};
+
 module.exports ={
     getAllPosts,
     reportPost,
@@ -1012,5 +1306,8 @@ module.exports ={
     getAllPerspectivesForOtherUser,
     getAllQueriesForTopic,
     getAllPerspectivesForTopic,
+    savePost,
+    unsavePost,
+    getAllSavedPosts,
     
 }

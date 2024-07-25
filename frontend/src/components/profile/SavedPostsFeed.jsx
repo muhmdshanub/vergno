@@ -1,13 +1,15 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Box, useTheme, Card, CardContent, Button, Typography } from '@mui/material';
-
-import { useGetAllPerspectivesForUserProfileQuery } from '../../slices/api_slices/profileApiSlice';
+import { Box, useTheme , Card, CardActions, CardContent, Button, Typography} from '@mui/material';
+import { useGetAllSavedPostsQuery, useUnsavePostMutation} from '../../slices/api_slices/allPostsApiSlice';
+import QueryPostCard from '../home/QueryPostCard';
+import QueryPostCardAdminSkeleton from '../skeletons/QueryCardAdminSkeleton';
 import PerspectivePostCard from '../home/PerspectivePostCard';
-import QueryPostCardAdminSkeleton from '../skeletons/PerspectiveCardAdminSkeleton';
-import AddPerspectivePost from './AddPerspectivePost';
 import ErrorAlertDialog from '../ErrorAlertDialoge';
+import BookmarkRemoveIcon from '@mui/icons-material/BookmarkRemove';
 
-const PerspectiveFeeds = () => {
+
+
+const QueryFeeds = () => {
   const theme = useTheme();
 
   const [posts, setPosts] = useState([]);
@@ -17,21 +19,25 @@ const PerspectiveFeeds = () => {
   const [errorFlag, setErrorFlag] = useState('');
   const [errorDialogOpen, setErrorDialogOpen] = useState(false);
 
-  const { data, error, isLoading, isSuccess, isError, refetch } = useGetAllPerspectivesForUserProfileQuery({
+  const { data, error, isLoading, isSuccess, isError, refetch } = useGetAllSavedPostsQuery({
     pageNum : page,
     limitNum : 10
   }, {refetchOnMountOrArgChange: true, });
 
+  const[unsavePost] = useUnsavePostMutation();
+
+
+
   useEffect(() => {
     if (data && isSuccess === true) {
       if (page === 1) {
-        setPosts(data.perspectives || []);
+        setPosts(data.posts || []);
         setPage((prevPage) => prevPage + 1);
         refetch();
       } else {
-        setTempPosts(data.perspectives || []);
+        setTempPosts(data.posts || []);
       }
-      setHasMore((data.perspectives || []).length > 0);
+      setHasMore((data.posts || []).length > 0);
     }
   }, [data, refetch]);
 
@@ -61,6 +67,20 @@ const PerspectiveFeeds = () => {
     setErrorFlag('');
   };
 
+
+  const handleUnsaveQuery = async (saved_Post_Id) => {
+    try {
+      const response = await unsavePost({ savedPostId: saved_Post_Id });
+      if (response?.data?.success) {
+        setPosts((prevPosts) => prevPosts.filter(post => post.savedPostId !== saved_Post_Id));
+      }
+    } catch (error) {
+      console.log("Error in unsaving the saved post:", saved_Post_Id);
+    }
+  };
+
+
+
   return (
     <Box
       sx={{
@@ -71,7 +91,7 @@ const PerspectiveFeeds = () => {
         margin:'auto'
       }}
 
-      
+      className="test---1"
     >
       <Box
         sx={{
@@ -80,9 +100,7 @@ const PerspectiveFeeds = () => {
         }}
       >
         <Box sx={{  padding: '20px', justifyContent: 'center', minWidth: '500px', maxWidth: '500px', margin:'auto' }}>
-          <Box sx={{ marginBottom: '20px' }}>
-            <AddPerspectivePost />
-          </Box>
+          
           <Box sx={{ marginBottom: '20px', minHeight: '3000px' }}>
             {isLoading ? (
               <>
@@ -92,12 +110,28 @@ const PerspectiveFeeds = () => {
               </>
             ) : (
               posts.map((post) => {
-                if (post.post_type === 'perspectives') {
-                  return (<PerspectivePostCard key={post._id} post={post} setErrorFlag={setErrorFlag} />);
-                }
-                return null;
+                return (
+                  <Card key={post._id} sx={{ backgroundColor: 'transparent' }}>
+                    <CardContent sx={{ padding: 0 }}>
+                      <Box display="flex" justifyContent="space-between" alignItems="center" sx={{ backgroundColor: 'rgba(255, 255, 255, 0.85)', padding: '10px' }}>
+                        <Button variant="outlined" color="secondary" startIcon={<BookmarkRemoveIcon />} onClick={()=>{handleUnsaveQuery(post.savedPostId)}}>
+                          Unsave
+                        </Button>
+                        <Typography variant="body2" align="center">
+                          Saved at {new Date(post.postSavedAt).toLocaleTimeString()}
+                        </Typography>
+                      </Box>
+                      <Box mt='5px'>
+                        {post.post_type === 'perspectives' ? (
+                          <PerspectivePostCard post={post} setErrorFlag={setErrorFlag} />
+                        ) : post.post_type === 'queries' ? (
+                          <QueryPostCard post={post} setErrorFlag={setErrorFlag} />
+                        ) : null}
+                      </Box>
+                    </CardContent>
+                  </Card>
+                );
               })
-
               
             )}
           </Box>
@@ -113,4 +147,4 @@ const PerspectiveFeeds = () => {
   );
 };
 
-export default PerspectiveFeeds;
+export default QueryFeeds;

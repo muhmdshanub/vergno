@@ -19,7 +19,7 @@ const { validateAddQuery, likeQueryValidator } = require('../validators/queryVal
 const { addPerspectiveValidator, likePerspectiveValidator } = require('../validators/perspectiveValidator.js');
 const { suggestPeoplesValidator, createFollowRequestValidator, allFollowRequestsValidator, declineFollowRequestValidator, blockUserValidator } = require('../validators/peoplesValidator.js');
 const { getAllNotificationsValidator, markAsReadValidator } = require('../validators/notificationsValidator.js');
-const { getAllPostsValidator, getAllQueriesForProfileValidator, getAllQueriesForOtherUserValidator } = require('../validators/allPostsValidator.js');
+const { getAllPostsValidator, getAllQueriesForProfileValidator, getAllQueriesForOtherUserValidator, validateSavePost, validateUnsavePost } = require('../validators/allPostsValidator.js');
 const { createAnswerValidator, getAnswersForQueryValidator, deleteQueryAnswerValidator } = require('../validators/answerValidator.js');
 const { queryCommentValidator, queryReplyValidator, perspectiveCommentValidator, perspectiveReplyValidator, getCommentsForQueryValidator, getCommentsForPerspectiveValidator, getRepliesForQueryCommentValidator, getRepliesForPerspectiveCommentValidator, likeQueryCommentValidator, likePerspectiveCommentValidator, reportCommentValidator, deleteQueryCommentValidator, deleteAllPostReplyValidator } = require('../validators/commentValidator.js');
 const { validateGetAllExistingConversations, validateCanSendMessage, validateMessage, validateGetAllMessagesForConversation, validateMarkAsReadMessage } = require('../validators/messageValidator.js');
@@ -82,6 +82,11 @@ userRouter.delete('/perspective/like',likePerspectiveValidator, validate, protec
 
 userRouter.get('/posts/all',getAllPostsValidator, validate, protectUser, allPostsController.getAllPosts)
 userRouter.post('/posts/report', protectUser, allPostsController.reportPost)
+userRouter.post('/posts/save', validateSavePost, validate, protectUser, allPostsController.savePost )
+userRouter.delete('/posts/unSave', validateUnsavePost, validate, protectUser, allPostsController.unsavePost )
+userRouter.get('/posts/saved', protectUser, allPostsController.getAllSavedPosts)
+
+
 
 userRouter.post('/comments/query',queryCommentValidator, validate, protectUser, commentController.queryComment)
 userRouter.post('/comments/reply/query',queryReplyValidator, validate, protectUser, commentController.queryReply)

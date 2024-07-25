@@ -444,7 +444,7 @@ const handleDelete = async () => {
         )}
 
           { viewReplies && (
-                      <Card sx={{  alignItems: 'center', paddingTop: '10px', boxShadow: 3,  marginBottom: '10px', marginRight:"0px",marginleft:"0px" , width: " 400px" , overflowX:'auto', overflowY:'auto', backgroundColor: 'transparent',backdropFilter: 'blur(6px) saturate(200%)',WebkitBackdropFilter: 'blur(6px) saturate(200%)',border: '1px solid rgba(209, 213, 219, 0.6)',transition: 'background-color 0.3s ease, border 0.3s ease, box-shadow 0.3s ease',  }} id="commentsReplyBox">
+                      <Card sx={{  alignItems: 'center', paddingTop: '10px', boxShadow: 3,  marginBottom: '10px', marginRight:"0px",marginleft:"0px" , width: " 400px" , overflowX:'auto', overflowY:'auto', backgroundColor: 'transparent',  }} id="commentsReplyBox">
                           <InfiniteScroll
                                               dataLength={comments.length}
                                               next={fetchMoreComments}

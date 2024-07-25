@@ -13,6 +13,7 @@ import SingleCommentPerspective from './SingleCommentPerspective.jsx';
 import LoadingModal from '../LoadingModal.jsx';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import CommentLoading from '../CommentLoading.jsx';
+import { useLocation } from 'react-router-dom';
 
 const scrollBarStyles = {
   '&::-webkit-scrollbar': {
@@ -139,11 +140,15 @@ const StyledModal = styled(Modal)(({ theme }) => ({ // Use destructuring to acce
   }))
 
 
-const EnlargedPerspective = React.memo(({ open, onClose, post, relativeTime,  isLiked, likeCount ,handleLike,handleUnlike, setErrorFlag, setCommentCount, followStatus, handleFollow , navigateToOtherUserProfile}) => {
+const EnlargedPerspective = React.memo(({ open, onClose, post, relativeTime,  isLiked, likeCount ,handleLike,handleUnlike,
+  setErrorFlag, setCommentCount, followStatus, handleFollow ,
+   navigateToOtherUserProfile, isSaved, handleSavePerspective,handleUnsavePerspective, }) => {
 
   const theme = useTheme();
   const {userInfo} = useSelector(state => state.userAuth)
   const {fallbackImage} = useSelector(state => state.fallbackImage)
+  const location = useLocation();
+
 
   const [imageOpen, setImageOpen] = useState(false);
   const [selectType, setSelectType] = useState("comments");
@@ -377,6 +382,12 @@ const handleRemoveComment = (commentId) => {
                           }}
                       >
                           <MenuItem onClick={handleOpenDialog}>Report Perspective</MenuItem>
+                          { (location.pathname !== '/profile') && ( (!isSaved) ? (
+                                <MenuItem onClick={handleSavePerspective}>Save Perspective</MenuItem>
+                                ) : (
+                                <MenuItem onClick={handleUnsavePerspective}>UnSave Perspective</MenuItem> 
+                                )
+                            )}
                       </Menu>
 
                       <Dialog open={openDialog} onClose={handleCloseDialog}>
@@ -591,6 +602,9 @@ EnlargedPerspective.propTypes = {
   handleUnlike: PropTypes.func.isRequired,
   setErrorFlag: PropTypes.func.isRequired,
   setCommentCount: PropTypes.func.isRequired,
+  isSaved: PropTypes.bool.isRequired,
+  handleSavePerspective: PropTypes.func.isRequired,
+  handleUnsavePerspective: PropTypes.func.isRequired,
 };
 
 export default EnlargedPerspective;

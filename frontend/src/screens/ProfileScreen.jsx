@@ -15,6 +15,7 @@ import { useGetUserProfileCardInfoQuery, useUpdateProfilePhotoMutation, useUpdat
 import QueryFeeds from '../components/profile/QueryFeeds'; // Adjust the path as necessary
 import { useParams } from 'react-router-dom';
 import PerspectiveFeeds from '../components/profile/PerspectiveFeed';
+import SavedPostsFeed from '../components/profile/SavedPostsFeed'
 import About from '../components/profile/About';
 import { useDispatch, useSelector } from 'react-redux';
 import { setUserCredentials } from '../slices/userAuthSlice';
@@ -71,7 +72,8 @@ const StrongTab = styled(Tab)(({ theme }) => ({
 const options = [
   { text: 'Queries', component: <QueryFeeds />}, 
   {text:'Perspectives', component : <PerspectiveFeeds />},
-  {text:'About', component : <About />}
+  {text:'About', component : <About />},
+  {text: 'Saved', component : <SavedPostsFeed />}
   // You can add more tabs here for Perspectives and About later
 ];
 

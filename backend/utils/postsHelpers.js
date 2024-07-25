@@ -101,6 +101,25 @@ const get_Following_Users_All_Posts_helper = async (userId, page = 1, limit = 10
                       }
                     },
                     {
+                      $lookup: {
+                        from: 'postsaves',
+                        let: { queryId: '$_id' },
+                        pipeline: [
+                          {
+                            $match: {
+                              $expr: {
+                                $and: [
+                                  { $eq: ['$post', '$$queryId'] },
+                                  { $eq: ['$user', userId] },
+                                ],
+                              },
+                            },
+                          },
+                        ],
+                        as: 'post_save',
+                      }
+                    },
+                    {
                       $project: {
                         _id: 1,
                         user: {
@@ -129,6 +148,8 @@ const get_Following_Users_All_Posts_helper = async (userId, page = 1, limit = 10
                         post_source: { $literal: 'from_users' },
                         isLikedByUser: { $cond: { if: { $gt: [{ $size: '$user_like' }, 0] }, then: true, else: false } },
                         followStatus: { $literal: 'following' },
+                        isPostSaved: { $cond: { if: { $gt: [{ $size: '$post_save' }, 0] }, then: true, else: false } },
+                        savedPostId: { $arrayElemAt: ['$post_save._id', 0] },
                       },
                     },
                   ],
@@ -209,6 +230,25 @@ const get_Following_Users_All_Posts_helper = async (userId, page = 1, limit = 10
                       }
                     },
                     {
+                      $lookup: {
+                        from: 'postsaves',
+                        let: { queryId: '$_id' },
+                        pipeline: [
+                          {
+                            $match: {
+                              $expr: {
+                                $and: [
+                                  { $eq: ['$post', '$$queryId'] },
+                                  { $eq: ['$user', userId] },
+                                ],
+                              },
+                            },
+                          },
+                        ],
+                        as: 'post_save',
+                      }
+                    },
+                    {
                       $project: {
                         _id: 1,
                         user: {
@@ -238,6 +278,8 @@ const get_Following_Users_All_Posts_helper = async (userId, page = 1, limit = 10
                         post_source: { $literal: 'from_users' },
                         isLikedByUser: { $cond: { if: { $gt: [{ $size: '$user_like' }, 0] }, then: true, else: false } },
                         followStatus: { $literal: 'following' },
+                        isPostSaved: { $cond: { if: { $gt: [{ $size: '$post_save' }, 0] }, then: true, else: false } },
+                        savedPostId: { $arrayElemAt: ['$post_save._id', 0] },
                       },
                     },
                   ],
@@ -372,6 +414,25 @@ const get_Following_Users_All_Posts_helper = async (userId, page = 1, limit = 10
                 }
               },
               {
+                $lookup: {
+                  from: 'postsaves',
+                  let: { queryId: '$_id' },
+                  pipeline: [
+                    {
+                      $match: {
+                        $expr: {
+                          $and: [
+                            { $eq: ['$post', '$$queryId'] },
+                            { $eq: ['$user', userId] },
+                          ],
+                        },
+                      },
+                    },
+                  ],
+                  as: 'post_save',
+                }
+              },
+              {
                 $project: {
                   _id: 1,
                   user: {
@@ -400,6 +461,8 @@ const get_Following_Users_All_Posts_helper = async (userId, page = 1, limit = 10
                   post_source: { $literal: 'from_users' },
                   isLikedByUser: { $cond: { if: { $gt: [{ $size: '$user_like' }, 0] }, then: true, else: false } },
                   followStatus: { $literal: 'following' },
+                  isPostSaved: { $cond: { if: { $gt: [{ $size: '$post_save' }, 0] }, then: true, else: false } },
+                  savedPostId: { $arrayElemAt: ['$post_save._id', 0] },
                 },
               },
             ],
@@ -509,6 +572,25 @@ const get_Following_Users_All_Posts_helper = async (userId, page = 1, limit = 10
                 }
               },
               {
+                $lookup: {
+                  from: 'postsaves',
+                  let: { queryId: '$_id' },
+                  pipeline: [
+                    {
+                      $match: {
+                        $expr: {
+                          $and: [
+                            { $eq: ['$post', '$$queryId'] },
+                            { $eq: ['$user', userId] },
+                          ],
+                        },
+                      },
+                    },
+                  ],
+                  as: 'post_save',
+                }
+              },
+              {
                 $project: {
                   _id: 1,
                   user: {
@@ -536,6 +618,8 @@ const get_Following_Users_All_Posts_helper = async (userId, page = 1, limit = 10
                   post_source: { $literal: 'from_users' },
                   isLikedByUser: { $cond: { if: { $gt: [{ $size: '$user_like' }, 0] }, then: true, else: false } },
                   followStatus: { $literal: 'following' },
+                  isPostSaved: { $cond: { if: { $gt: [{ $size: '$post_save' }, 0] }, then: true, else: false } },
+                  savedPostId: { $arrayElemAt: ['$post_save._id', 0] },
 
                 },
               },
@@ -685,6 +769,25 @@ const get_Following_Topics_Queries_helper = async (userId, page = 1, limit = 10)
                 },
               },
               {
+                $lookup: {
+                  from: 'postsaves',
+                  let: { queryId: '$_id' },
+                  pipeline: [
+                    {
+                      $match: {
+                        $expr: {
+                          $and: [
+                            { $eq: ['$post', '$$queryId'] },
+                            { $eq: ['$user', userId] },
+                          ],
+                        },
+                      },
+                    },
+                  ],
+                  as: 'post_save',
+                }
+              },
+              {
                 $project: {
                   _id: 1,
                   user: {
@@ -719,6 +822,8 @@ const get_Following_Topics_Queries_helper = async (userId, page = 1, limit = 10)
                       else: 'notFollowing',
                     },
                   },
+                  isPostSaved: { $cond: { if: { $gt: [{ $size: '$post_save' }, 0] }, then: true, else: false } },
+                  savedPostId: { $arrayElemAt: ['$post_save._id', 0] },
                 },
               },
             ],
@@ -865,6 +970,25 @@ const get_Following_Topics_Perspectives_helper = async (userId, page = 1, limit 
                 },
               },
               {
+                $lookup: {
+                  from: 'postsaves',
+                  let: { queryId: '$_id' },
+                  pipeline: [
+                    {
+                      $match: {
+                        $expr: {
+                          $and: [
+                            { $eq: ['$post', '$$queryId'] },
+                            { $eq: ['$user', userId] },
+                          ],
+                        },
+                      },
+                    },
+                  ],
+                  as: 'post_save',
+                }
+              },
+              {
                 $project: {
                   _id: 1,
                   user: {
@@ -897,6 +1021,8 @@ const get_Following_Topics_Perspectives_helper = async (userId, page = 1, limit 
                       else: 'notFollowing',
                     },
                   },
+                  isPostSaved: { $cond: { if: { $gt: [{ $size: '$post_save' }, 0] }, then: true, else: false } },
+                  savedPostId: { $arrayElemAt: ['$post_save._id', 0] },
                 },
               },
             ],
@@ -1034,6 +1160,25 @@ const get_Following_Topics_All_Posts_helper = async (userId, page = 1, limit = 1
                       },
                     },
                     {
+                      $lookup: {
+                        from: 'postsaves',
+                        let: { queryId: '$_id' },
+                        pipeline: [
+                          {
+                            $match: {
+                              $expr: {
+                                $and: [
+                                  { $eq: ['$post', '$$queryId'] },
+                                  { $eq: ['$user', userId] },
+                                ],
+                              },
+                            },
+                          },
+                        ],
+                        as: 'post_save',
+                      }
+                    },
+                    {
                       $project: {
                         _id: 1,
                         user: {
@@ -1068,6 +1213,8 @@ const get_Following_Topics_All_Posts_helper = async (userId, page = 1, limit = 1
                             else: 'notFollowing',
                           },
                         },
+                        isPostSaved: { $cond: { if: { $gt: [{ $size: '$post_save' }, 0] }, then: true, else: false } },
+                        savedPostId: { $arrayElemAt: ['$post_save._id', 0] },
                       },
                     },
                   ],
@@ -1182,6 +1329,25 @@ const get_Following_Topics_All_Posts_helper = async (userId, page = 1, limit = 1
                       },
                     },
                     {
+                      $lookup: {
+                        from: 'postsaves',
+                        let: { queryId: '$_id' },
+                        pipeline: [
+                          {
+                            $match: {
+                              $expr: {
+                                $and: [
+                                  { $eq: ['$post', '$$queryId'] },
+                                  { $eq: ['$user', userId] },
+                                ],
+                              },
+                            },
+                          },
+                        ],
+                        as: 'post_save',
+                      }
+                    },
+                    {
                       $project: {
                         _id: 1,
                         user: {
@@ -1214,6 +1380,8 @@ const get_Following_Topics_All_Posts_helper = async (userId, page = 1, limit = 1
                             else: 'notFollowing',
                           },
                         },
+                        isPostSaved: { $cond: { if: { $gt: [{ $size: '$post_save' }, 0] }, then: true, else: false } },
+                        savedPostId: { $arrayElemAt: ['$post_save._id', 0] },
                       },
                     },
                   ],

@@ -11,10 +11,10 @@ import EnlargedPerspective from './EnlargedPerspective';
 import { useSelector } from 'react-redux';
 import { formatDistanceToNow } from 'date-fns';
 import { useLikePerspectiveMutation, useUnlikePerspectiveMutation } from '../../slices/api_slices/perspectiveApiSlice'
-import { useReportPostMutation } from '../../slices/api_slices/allPostsApiSlice';
+import { useReportPostMutation, useSavePostMutation, useUnsavePostMutation } from '../../slices/api_slices/allPostsApiSlice';
 import { useSendFollowRequestMutation} from '../../slices/api_slices/peoplesApiSlice';
 import { useNavigate } from 'react-router-dom';
-
+import { useLocation } from 'react-router-dom';
 
 
 const PostCard = styled(Card)(({ theme }) => ({
@@ -75,6 +75,7 @@ const PerspectivePostCard = React.memo(({ post, setErrorFlag }) => {
     const navigate = useNavigate();
 
     const {fallbackImage} = useSelector(state => state.fallbackImage)
+    const location = useLocation();
 
     const [imageOpen, setImageOpen] = useState(false);
     const [perspectiveOpen, setPerspectiveOpen] = useState(false);
@@ -83,7 +84,9 @@ const PerspectivePostCard = React.memo(({ post, setErrorFlag }) => {
     const [isLiked, setIsLiked] = useState(post?.isLikedByUser);
     const [followStatus, setFollowStatus] = useState(post?.followStatus);
     const [likeCount, setLikeCount] = useState(post?.likeCount);
-    const [commentCount, setCommentCount] = useState(post?.commentCount || 0)
+    const [commentCount, setCommentCount] = useState(post?.commentCount || 0);
+    const [isSaved, setIsSaved] = useState(post?.isPostSaved || false);
+    const [savedPostId, setSavedPostId] = useState(  post?.savedPostId || '');
 
 
     const handleImageOpen = () => setImageOpen(true);
@@ -109,6 +112,9 @@ const PerspectivePostCard = React.memo(({ post, setErrorFlag }) => {
     const [unlikePerspectiveMutation] = useUnlikePerspectiveMutation();
     const [sendFollowRequest] = useSendFollowRequestMutation();
   
+
+    const[savePost] = useSavePostMutation();
+    const[unsavePost] = useUnsavePostMutation();
 
 
     const handleFollow = async () => {
@@ -204,6 +210,32 @@ const navigateToOtherUserProfile=() =>{
     navigate(`/profiles/${post?.user?._id}`)
   }
 
+  const handleSavePerspective = async()=>{
+    try{
+      const response = await savePost({postType : 'Perspective', postId : post._id})
+      if(response?.data?.success){
+          setIsSaved(true)
+          setSavedPostId(response?.data?.savedPostId)
+          handleCloseMenu()
+      }
+    }catch(error){
+        console.log("error in saving Perspective", post._id)
+    }
+  }
+
+  const handleUnsavePerspective= async()=>{
+    try{
+      const response = await unsavePost({ savedPostId : savedPostId})
+      if(response?.data?.success){
+          setIsSaved(false)
+          setSavedPostId('')
+          handleCloseMenu()
+      }
+    }catch(error){
+      console.log("error in unsaving Perspective", post._id)
+    }
+  }
+
 
     return (
         <GlassmorphicCard>
@@ -247,6 +279,12 @@ const navigateToOtherUserProfile=() =>{
                             }}
                         >
                             <MenuItem onClick={handleOpenDialog}>Report Perspective</MenuItem>
+                            { (location.pathname !== '/profile') && ( (!isSaved) ? (
+                                <MenuItem onClick={handleSavePerspective}>Save Perspective</MenuItem>
+                                ) : (
+                                <MenuItem onClick={handleUnsavePerspective}>UnSave Perspective</MenuItem> 
+                                )
+                            )}
                         </Menu>
 
                         <Dialog open={openDialog} onClose={handleCloseDialog}>
@@ -339,7 +377,7 @@ const navigateToOtherUserProfile=() =>{
                     </IconButton>
                     <Typography variant="body2" style={{ fontSize: "0.7rem" }}>{post.shares} shares</Typography>
                 </Box> */}
-                <EnlargedPerspective open={perspectiveOpen} onClose={handlePerspectiveClose} post={post} relativeTime={relativeTime}  isLiked={isLiked} likeCount={likeCount} handleLike={handleLike} handleUnlike={handleUnlike} setErrorFlag={setErrorFlag} setCommentCount={setCommentCount} handleFollow={handleFollow} followStatus={followStatus} navigateToOtherUserProfile={navigateToOtherUserProfile}/>
+                <EnlargedPerspective open={perspectiveOpen} onClose={handlePerspectiveClose} post={post} relativeTime={relativeTime}  isLiked={isLiked} likeCount={likeCount} handleLike={handleLike} handleUnlike={handleUnlike} setErrorFlag={setErrorFlag} setCommentCount={setCommentCount} handleFollow={handleFollow} followStatus={followStatus} navigateToOtherUserProfile={navigateToOtherUserProfile} isSaved={isSaved} handleSavePerspective={handleSavePerspective} handleUnsavePerspective={handleUnsavePerspective}  />
             </PostActions>
         </GlassmorphicCard>
     );

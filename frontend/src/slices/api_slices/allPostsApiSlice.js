@@ -21,12 +21,36 @@ export const allPostsApiSlice = apiSlice.injectEndpoints({
               body: { reason, post_type, post_source, post_id },
             }),
           }),
+          savePost: builder.mutation({
+            query: ({  postType, postId }) => ({
+              url: `${ALL_POSTS_URL}/save`,
+              method: 'POST',
+              body: {  postType, postId },
+            }),
+          }),
+          unsavePost: builder.mutation({
+            query: ({   savedPostId }) => ({
+              url: `${ALL_POSTS_URL}/unsave`,
+              method: 'DELETE',
+              body: { savedPostId },
+            }),
+          }),
+          getAllSavedPosts: builder.query({
+            query: ({page = 1, limit=10 }) => ({
+              url: `${ALL_POSTS_URL}/saved`,
+              method: 'GET',
+              params: { page, limit  },
+            }),
+          }),
     })
 })
 
 
 export const {
     useGetAllPostsQuery,
-    useReportPostMutation
+    useReportPostMutation,
+    useSavePostMutation,
+    useUnsavePostMutation,
+    useGetAllSavedPostsQuery,
 
   } = allPostsApiSlice;
