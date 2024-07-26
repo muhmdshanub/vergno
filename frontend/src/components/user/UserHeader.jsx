@@ -344,7 +344,7 @@ function UserHeader() {
 
                   <Grid item  md={5} lg={4} container alignItems="flex-end">
 
-                    <Logo sx={{ maxWidth: 'fit-content', paddingRight: '0px' }} onClick={()=> {navigate('/')}}>
+                    <Logo sx={{ maxWidth: 'fit-content', paddingRight: '0px',cursor: 'pointer' }} onClick={()=> {navigate('/')}}>
                       { (logoImage) ? (<LogoImageContainer src={logoImage} alt="Logo" />) :
                       (<LogoText variant="h2" sx={{width:'fit-content', paddingRight:'0px'}}>VerGno</LogoText>)
                       }
@@ -424,7 +424,7 @@ function UserHeader() {
             <>
               
               <Grid item xs={2}  container alignItems="center" justifyContent='center' minWidth="150px" maxWidth="250px">
-                <Logo sx={{ maxWidth: 'fit-content', paddingRight: '0px' }} onClick={()=> {navigate('/')}}>
+                <Logo sx={{ maxWidth: 'fit-content', paddingRight: '0px', cursor: 'pointer' }} onClick={()=> {navigate('/')}}>
                         { (logoImage) ? (<LogoImageContainer src={logoImage} alt="Logo" />) :
                         (<LogoText variant="h2" sx={{width:'fit-content', paddingRight:'0px'}}>VerGno</LogoText>)
                         }
@@ -512,7 +512,7 @@ function UserHeader() {
             <>
               
               <Grid item xs={12}  container alignItems="center" justifyContent='space-between' width="400px">
-                    <Logo sx={{ maxWidth: 'fit-content', paddingRight: '0px' }} onClick={()=> {navigate('/')}}>
+                    <Logo sx={{ maxWidth: 'fit-content', paddingRight: '0px', cursor: 'pointer' }} onClick={()=> {navigate('/')}}>
                       { (logoImage) ? (<LogoImageContainer src={logoImage} alt="Logo" />) :
                       (<LogoText variant="h2" sx={{width:'fit-content', paddingRight:'0px'}}>VerGno</LogoText>)
                       }

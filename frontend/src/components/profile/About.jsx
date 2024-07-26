@@ -10,8 +10,13 @@ import ErrorAlertDialog from '../ErrorAlertDialoge';
 
 const StyledPaper = styled(Paper)(({ theme }) => ({
   padding: theme.spacing(3),
-  borderRadius: theme.shape.borderRadius,
-  backgroundColor: theme.palette.ternaryButton.main,
+  color:'#ffffff',
+  backgroundColor: 'rgba(255, 255, 255, 0.45)',
+  backdropFilter: 'blur(10px) saturate(200%)',
+  WebkitBackdropFilter: 'blur(10px) saturate(200%)', // For Safari support
+  border: '1px solid rgba(209, 213, 219, 0.3)', // Semi-transparent border
+  boxShadow: theme.shadows[3],
+  transition: 'background-color 0.3s ease, border 0.3s ease, box-shadow 0.3s ease', // Smooth transition
   width: '500px',
   margin:'auto'
 }));

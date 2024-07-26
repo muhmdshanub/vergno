@@ -110,13 +110,13 @@ const BlockedPeople = () => {
           <div style={{display: 'flex', justifyContent: 'space-between',alignItems:"center", marginBottom: '20px', width:"100%", marginRight:"20px"}}> 
             <Grid container spacing={2}>
               <Grid item xs={12} sm={6}>
-                <Typography variant="h5" style={{ backgroundColor: "#fc03a1", padding: "10px", color: "#ffffff", width:"fit-content" }}>
+                <Typography variant="h5" style={{  padding: "10px", color: "#ffffff", width:"fit-content" }}>
                   Total Blocked [ {totalBlockingsCount} ]
                 </Typography>
               </Grid>
               <Grid item xs={12} sm={6} sx={{display: 'flex', justifyContent: 'flex-end',}}>
                 <Box sx={{ display: 'flex', justifyContent: 'flex-start', alignItems: "center", alignContent: "center" }}>
-                  <Typography sx={{ color: "#fc03a1" }}>Sort By : </Typography>
+                  <Typography sx={{ color: "#ffffff" }}>Sort By : </Typography>
                   <FormControl sx={{ m: 1, minWidth: 120, backgroundColor: theme.palette.secondaryButton.main, borderRadius: '8px' }}>
                     <Select
                       value={sortBy}

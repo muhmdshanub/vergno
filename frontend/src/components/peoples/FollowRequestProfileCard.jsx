@@ -8,21 +8,22 @@ import { useNavigate } from 'react-router-dom';
 import {styled} from '@mui/material';
 
 const GlassmorphicCard = styled(Card)(({ theme }) => ({ 
-  margin: 5,
+  margin: '1rem',
   borderRadius:"8px",
   padding: "10px 25px",
   position:"relative",
-  backgroundColor: 'rgba(255, 255, 255, 0.45)',
+  backgroundColor: 'rgba(255, 255, 255, 0.95)',
   backdropFilter: 'blur(10px) saturate(200%)',
   WebkitBackdropFilter: 'blur(10px) saturate(200%)', // For Safari support
   border: '1px solid rgba(209, 213, 219, 0.3)', // Semi-transparent border
   boxShadow: theme.shadows[3],
   transition: 'background-color 0.3s ease, border 0.3s ease, box-shadow 0.3s ease', // Smooth transition
   '&:hover': {
-    backgroundColor: 'rgba(255, 255, 255, 0.55)', // Slightly more opaque background
+    backgroundColor: 'rgba(255, 255, 255, 1)', // Slightly more opaque background
     border: '1px solid rgba(209, 213, 219, 0.4)', // Slightly more opaque border
     boxShadow: theme.shadows[6], // Increase box shadow on hover
-  }
+  },
+  minWidth:'200px'
 
 }));
 
@@ -149,14 +150,14 @@ const FollowRequestProfileCard = ({userData, onRequestUpdate, handleRequestreduc
             </Typography>
           </Tooltip>
 
-          <Box display="flex" flexDirection="column" alignItems="center" justifyItems="center" sx={{ backgroundColor:"#000000",color:"#ffffff", width: "90%", padding: "8px", borderRadius: "5px", marginBottom: "2rem", height:'6rem' }} >
+          <Box display="flex" flexDirection="column" alignItems="center" justifyItems="center" sx={{ backgroundColor: userData.followingTopics.length > 0 ? "#000000" : 'transparent',color:"#ffffff", width: "90%", padding: "8px", borderRadius: "5px", marginBottom: "2rem", height:'6rem' }} >
 
             {
               
               userData.followingTopics.map((topic) =>(
                 
                 <Tooltip title={topic.name}>
-                  <Typography variant="type2"  sx={{cursor : 'pointer', mb: '3px',mt:0, width: '100%', height: '1.5rem',  display:"flex",justifyContent:"center", color:'#ffffff',}} onClick={() => navigate(`/topics/${topic._id}`)}>
+                  <Typography variant="body2"  sx={{cursor : 'pointer', mb: '3px',mt:0, width: '100%', height: '1.5rem',  display:"flex",justifyContent:"center", color:'#ffffff',}} onClick={() => navigate(`/topics/${topic._id}`)}>
                     {truncatedName(topic.name)}
                   </Typography>
                 </Tooltip>

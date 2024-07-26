@@ -68,7 +68,7 @@ const FollowRequestPeople = () => {
 
           <div style={{display: 'flex', justifyContent: 'flex-start',alignItems:"center", marginBottom: '20px', width:"100%", marginRight:"20px",}}> 
           
-            <Typography variant="h5" style={{backgroundColor:"#fc03a1", padding:"10px", color:"#ffffff"}}>Total Requests [ { totalRequestCount} ]</Typography> 
+            <Typography variant="h5" style={{ padding:"10px", color:"#ffffff"}}>Total Requests [ { totalRequestCount} ]</Typography> 
           </div>   
         <Grid container spacing={1} sx={{ width: '100%',  }}>
 

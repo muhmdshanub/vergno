@@ -10,11 +10,12 @@ const LoginPaper = styled(Paper)(({ theme }) => ({
     flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'center',
-    padding: '20px',
+    padding: '10px',
     paddingBottom:"70px",
     width: '100%',
     minWidth:'fit-content',
-    position:"relative"
+    position:"relative",
+    margin:'0px'
     
   }));
 
@@ -69,7 +70,7 @@ const SuggestionPeoples = () => {
                                 ))
                             ) : suggestionsSuccess && peoplesData?.data?.length > 0 ? (
                                 suggestions.map((user) => (
-                                    <Grid item xs={6} sm={4} md={3} lg={3} key={user._id}>
+                                    <Grid item xs={6} sm={4} md={3} lg={3} key={user._id} sx={{ width:'100%'}}>
                                         <PeopleProfileCard userData={user} onSuggestionClear={handleSuggestionClear} />
                                     </Grid>
                                 ))

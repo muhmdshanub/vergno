@@ -16,6 +16,46 @@ import PerspectiveFeeds from '../components/others-profile/PerspectiveFeed';
 import About from '../components/others-profile/About';
 import { useSelector } from 'react-redux';
 
+
+
+
+const GlassmorphicPaper = styled(Paper)(({ theme }) => ({
+  width: '100%',
+  padding: '20px',
+  borderRadius: '10px',
+  backgroundColor: 'rgba(255, 255, 255, 0.45)', // Semi-transparent background
+  backdropFilter: 'blur(10px) saturate(200%)',
+  WebkitBackdropFilter: 'blur(10px) saturate(200%)', // For Safari support
+  border: '1px solid rgba(209, 213, 219, 0.3)', // Semi-transparent border
+  boxShadow: theme.shadows[3],
+  transition: 'background-color 0.3s ease, border 0.3s ease, box-shadow 0.3s ease', // Smooth transition
+  '&:hover': {
+    backgroundColor: 'rgba(255, 255, 255, 0.55)', // Slightly more opaque background
+    border: '1px solid rgba(209, 213, 219, 0.4)', // Slightly more opaque border
+    boxShadow: theme.shadows[6], // Increase box shadow on hover
+  }
+}));
+
+const GlassmorphicAppBar = styled(AppBar)(({ theme }) => ({
+  top: 0,
+  paddingTop: "1rem",
+  paddingBottom: '1rem',
+  marginTop: "2rem",
+  background: 'rgba(0, 0, 0, 0.4)',
+  backdropFilter: 'blur(5px) saturate(150%)',
+  WebkitBackdropFilter: 'blur(5px) saturate(150%)',
+}));
+
+const GlassmorphicTabPanel = styled(TabPanel)(({ theme }) => ({
+  minHeight: "65vh",
+  background: 'rgba(255, 255, 255, 0.2)',
+  backdropFilter: 'blur(5px) saturate(150%)',
+  WebkitBackdropFilter: 'blur(5px) saturate(150%)',
+  borderRadius: '15px',
+}));
+
+
+
 function TabPanel(props) {
   const { children, value, index, ...other } = props;
 
@@ -53,12 +93,12 @@ function a11yProps(index) {
 const StrongTab = styled(Tab)(({ theme }) => ({
   fontWeight: 'bold', // Make the tab label bold
   fontFamily: "Inter, system-ui, Avenir, Helvetica, Arial, sans-serif",
-  color: "#fc03a1", // Use the default text color
+  color: "#ffffff", // Use the default text color
   '&.Mui-selected': {
-    color: "#ff94d8", // Use a different color for the selected tab label
+    color: "#000000", // Use a different color for the selected tab label
   },
   '& .MuiTabs-indicator': {
-    backgroundColor: "#ff94d8", // Customize the indicator color for the selected tab
+    backgroundColor: "transparent", // Customize the indicator color for the selected tab
   },
 }));
 
@@ -111,14 +151,14 @@ const OtherProfileScreen = () => {
     <Grid container spacing={2}>
       <Grid item xs={12} sm={12} md={10} lg={8} sx={{ margin: '0 auto' }}>
         {/* Profile Info section */}
-        <Box sx={{ bgcolor: 'lightblue', minHeight: '30vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem' }}>
+        <GlassmorphicPaper sx={{  minHeight: '30vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem' }}>
           
             <Profile userId={userId}/>
-        </Box>
+        </GlassmorphicPaper>
         
         {/* Tabs section */}
         <Paper elevation={3} sx={{ width: '100%', position: "relative", backgroundColor:'transparent' }}>
-          <AppBar position="static" sx={{ top: 0, zIndex: 10, paddingTop: "1rem", paddingBottom: '1rem', marginTop: "2rem", backgroundColor: "rgba(255, 255, 255, 0.65)" }} >
+          <GlassmorphicAppBar position="static" sx={{ top: 0, zIndex: 10, paddingTop: "1rem", paddingBottom: '1rem', marginTop: "2rem", backgroundColor: "rgba(255, 255, 255, 0.65)" }} >
             <Tabs
               value={value}
               onChange={handleChange}
@@ -133,7 +173,7 @@ const OtherProfileScreen = () => {
                 <StrongTab key={`strong_tab_${index}`} label={option.text} {...a11yProps(index)} />
               ))}
             </Tabs>
-          </AppBar>
+          </GlassmorphicAppBar>
           {options.map((option, index) => (
             <TabPanel key={`strong_tab_panel_${index}`} value={value} index={index} style={{ minHeight: "65vh" , width:'100%', margin:'auto'}} sx={{ backgroundColor: "#f0f3fa" , margin:'auto'}}>
               {value === index && (
