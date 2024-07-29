@@ -674,7 +674,158 @@ const getAllReportsForAllQueriesAdmin = asyncHandler(async (req, res) => {
   }
 });
 
+const globalSearchQueries = asyncHandler(async (req, res) => {
+  const { searchBy = '', page = 1, limit = 10 } = req.query;
 
+  try {
+    const aggregateQuery = [
+      // Initial match to filter out blocked queries and queries that do not match the search criteria
+      {
+        $match: {
+          isBlocked: false,
+          $or: [
+            { title: { $regex: searchBy, $options: 'i' } },
+            { description: { $regex: searchBy, $options: 'i' } },
+          ],
+        },
+      },
+      // Lookup to get user data, only for queries that passed the initial filter
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'user',
+          foreignField: '_id',
+          as: 'user_data',
+          pipeline: [
+            {
+              $match: {
+                isBlocked: false, // Ensure that the user is not blocked
+              },
+            },
+          ],
+        },
+      },
+      {
+        $unwind: {
+          path: '$user_data',
+          preserveNullAndEmptyArrays: false, // Only include documents where user_data exists
+        },
+      },
+      // Lookup to get topic data
+      {
+        $lookup: {
+          from: 'topics',
+          localField: 'topic',
+          foreignField: '_id',
+          as: 'topic_data',
+        },
+      },
+      {
+        $unwind: {
+          path: '$topic_data',
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+      // Lookup to check if the query is liked by the current user
+      {
+        $lookup: {
+          from: 'querylikes',
+          let: { queryId: '$_id' },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $and: [
+                    { $eq: ['$query_id', '$$queryId'] },
+                    { $eq: ['$user_id', new mongoose.Types.ObjectId(req.user._id)] }, // Assuming the user ID is available in req.user
+                  ],
+                },
+              },
+            },
+          ],
+          as: 'user_like',
+        },
+      },
+      // Lookup to check if the query is saved by the current user
+      {
+        $lookup: {
+          from: 'postsaves',
+          let: { queryId: '$_id' },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $and: [
+                    { $eq: ['$post', '$$queryId'] },
+                    { $eq: ['$user', new mongoose.Types.ObjectId(req.user._id)] }, // Assuming the user ID is available in req.user
+                  ],
+                },
+              },
+            },
+          ],
+          as: 'post_save',
+        },
+      },
+      {
+        $facet: {
+          queries: [
+            { $skip: (page - 1) * limit },
+            { $limit: parseInt(limit, 10) },
+            {
+              $project: {
+                _id: 1,
+                user: {
+                  _id: '$user_data._id',
+                  name: '$user_data.name',
+                  image: '$user_data.image',
+                  googleProfilePicture: '$user_data.googleProfilePicture',
+                },
+                title: 1,
+                image: 1,
+                description: 1,
+                likeCount: 1,
+                commentCount: 1,
+                answerCount: 1,
+                topic: '$topic_data.name',
+                posted_at: 1,
+                isResolved: 1,
+                isBlocked: 1,
+                post_type: { $literal: 'queries' },
+                post_source: { $literal: 'from_all' },
+                isLikedByUser: { $cond: { if: { $gt: [{ $size: '$user_like' }, 0] }, then: true, else: false } },
+                isPostSaved: { $cond: { if: { $gt: [{ $size: '$post_save' }, 0] }, then: true, else: false } },
+                savedPostId: { $arrayElemAt: ['$post_save._id', 0] },
+              },
+            },
+          ],
+          totalCount: [
+            {
+              $count: 'total',
+            },
+          ],
+        },
+      },
+    ];
+
+    const result = await Query.aggregate(aggregateQuery);
+
+    const queries = result[0].queries;
+    const total = result[0].totalCount.length > 0 ? result[0].totalCount[0].total : 0;
+
+    res.json({
+      success: true,
+      queries,
+      total,
+      limit: parseInt(limit, 10),
+      page: parseInt(page, 10),
+      pages: Math.ceil(total / limit),
+    });
+  } catch (error) {
+    console.error('Error fetching queries:', error);
+    res.status(500)
+    throw new Error(`Error fetching queries: ${error.message}`)
+  }
+});
 
 module.exports = {
     addQueryToProfile,
@@ -688,5 +839,6 @@ module.exports = {
     getSingleQueryDetailsForAdmin,
     getAllReportsForSingleQueryAdmin,
     getAllReportsForAllQueriesAdmin,
+    globalSearchQueries,
 
 }

@@ -615,6 +615,312 @@ const getAllReportsForAllPerspectivesAdmin = asyncHandler(async (req, res) => {
   }
 })
 
+// const globalSearchPerspectives = asyncHandler(async (req, res) => {
+//   const { searchBy = '', page = 1, limit = 10 } = req.query;
+
+//   try {
+//     const aggregatePerspective = [
+//       // Initial match to filter out blocked perspectivess and perspectivess that do not match the search criteria
+//       {
+//         $match: {
+//           isBlocked: false,
+//           $or: [
+//             { title: { $regex: searchBy, $options: 'i' } },
+//             { description: { $regex: searchBy, $options: 'i' } },
+//           ],
+//         },
+//       },
+//       // Lookup to get user data, only for perspectivess that passed the initial filter
+//       {
+//         $lookup: {
+//           from: 'users',
+//           localField: 'user',
+//           foreignField: '_id',
+//           as: 'user_data',
+//           pipeline: [
+//             {
+//               $match: {
+//                 isBlocked: false, // Ensure that the user is not blocked
+//               },
+//             },
+//           ],
+//         },
+//       },
+//       {
+//         $unwind: {
+//           path: '$user_data',
+//           preserveNullAndEmptyArrays: false, // Only include documents where user_data exists
+//         },
+//       },
+//       // Lookup to get topic data
+//       {
+//         $lookup: {
+//           from: 'topics',
+//           localField: 'topic',
+//           foreignField: '_id',
+//           as: 'topic_data',
+//         },
+//       },
+//       {
+//         $unwind: {
+//           path: '$topic_data',
+//           preserveNullAndEmptyArrays: true,
+//         },
+//       },
+//       // Lookup to check if the perspectives is liked by the current user
+//       {
+//         $lookup: {
+//           from: 'perspectivelikes',
+//           let: { perspectiveId: '$_id' },
+//           pipeline: [
+//             {
+//               $match: {
+//                 $expr: {
+//                   $and: [
+//                     { $eq: ['$perspective_id', '$$perspectiveId'] },
+//                     { $eq: ['$user_id', new mongoose.Types.ObjectId(req.user._id)] }, // Assuming the user ID is available in req.user
+//                   ],
+//                 },
+//               },
+//             },
+//           ],
+//           as: 'user_like',
+//         },
+//       },
+//       // Lookup to check if the perspective is saved by the current user
+//       {
+//         $lookup: {
+//           from: 'postsaves',
+//           let: { perspectiveId: '$_id' },
+//           pipeline: [
+//             {
+//               $match: {
+//                 $expr: {
+//                   $and: [
+//                     { $eq: ['$post', '$$perspectiveId'] },
+//                     { $eq: ['$user', new mongoose.Types.ObjectId(req.user._id)] }, // Assuming the user ID is available in req.user
+//                   ],
+//                 },
+//               },
+//             },
+//           ],
+//           as: 'post_save',
+//         },
+//       },
+//       {
+//         $facet: {
+//           perspectives: [
+//             { $skip: (page - 1) * limit },
+//             { $limit: parseInt(limit, 10) },
+//             {
+//               $project: {
+//                 _id: 1,
+//                 user: {
+//                   _id: { $arrayElemAt: ['$user_data._id', 0] },
+//                   name: { $arrayElemAt: ['$user_data.name', 0] },
+//                   image: { $arrayElemAt: ['$user_data.image', 0] },
+//                   googleProfilePicture: { $arrayElemAt: ['$user_data.googleProfilePicture', 0] },
+//                 },
+//                 title: 1,
+//                 image: 1,
+//                 description: 1,
+//                 likeCount: 1,
+//                 commentCount: 1,
+//                 answerCount: 1,
+//                 topic: { $arrayElemAt: ['$topic_data.name', 0] },
+//                 posted_at: 1,
+//                 isResolved: 1,
+//                 isBlocked: 1,
+//                 post_type: { $literal: 'perspectives' },
+//                 post_source: { $literal: 'from_all' },
+//                 isLikedByUser: { $cond: { if: { $gt: [{ $size: '$user_like' }, 0] }, then: true, else: false } },
+//                 isPostSaved: { $cond: { if: { $gt: [{ $size: '$post_save' }, 0] }, then: true, else: false } },
+//                 savedPostId: { $arrayElemAt: ['$post_save._id', 0] },
+//               },
+//             },
+//           ],
+//           totalCount: [
+//             {
+//               $count: 'total',
+//             },
+//           ],
+//         },
+//       },
+//     ];
+
+//     const result = await Perspective.aggregate(aggregatePerspective);
+
+//     const perspectives = result[0].perspectives;
+//     const total = result[0].totalCount.length > 0 ? result[0].totalCount[0].total : 0;
+
+//     res.json({
+//       success: true,
+//       perspectives,
+//       total,
+//       limit: parseInt(limit, 10),
+//       page: parseInt(page, 10),
+//       pages: Math.ceil(total / limit),
+//     });
+//   } catch (error) {
+//     console.error('Error fetching perspectives :', error);
+//     res.status(500)
+//     throw new Error(`Error fetching perspectives : ${error.message}`)
+//   }
+// });
+
+const globalSearchPerspectives = asyncHandler(async (req, res) => {
+  const { searchBy = '', page = 1, limit = 10 } = req.query;
+
+  try {
+    const aggregatePerspective = [
+      // Initial match to filter out blocked perspectives and perspectives that do not match the search criteria
+      {
+        $match: {
+          isBlocked: false,
+          $or: [
+            { title: { $regex: searchBy, $options: 'i' } },
+            { description: { $regex: searchBy, $options: 'i' } },
+          ],
+        },
+      },
+      // Lookup to get user data, only for perspectives that passed the initial filter
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'user',
+          foreignField: '_id',
+          as: 'user_data',
+          pipeline: [
+            {
+              $match: {
+                isBlocked: false, // Ensure that the user is not blocked
+              },
+            },
+          ],
+        },
+      },
+      {
+        $unwind: {
+          path: '$user_data',
+          preserveNullAndEmptyArrays: false, // Only include documents where user_data exists
+        },
+      },
+      // Lookup to get topic data
+      {
+        $lookup: {
+          from: 'topics',
+          localField: 'topic',
+          foreignField: '_id',
+          as: 'topic_data',
+        },
+      },
+      {
+        $unwind: {
+          path: '$topic_data',
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+      // Lookup to check if the perspective is liked by the current user
+      {
+        $lookup: {
+          from: 'perspectivelikes',
+          let: { perspectiveId: '$_id' },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $and: [
+                    { $eq: ['$perspective_id', '$$perspectiveId'] },
+                    { $eq: ['$user_id', new mongoose.Types.ObjectId(req.user._id)] }, // Assuming the user ID is available in req.user
+                  ],
+                },
+              },
+            },
+          ],
+          as: 'user_like',
+        },
+      },
+      // Lookup to check if the perspective is saved by the current user
+      {
+        $lookup: {
+          from: 'postsaves',
+          let: { perspectiveId: '$_id' },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $and: [
+                    { $eq: ['$post', '$$perspectiveId'] },
+                    { $eq: ['$user', new mongoose.Types.ObjectId(req.user._id)] }, // Assuming the user ID is available in req.user
+                  ],
+                },
+              },
+            },
+          ],
+          as: 'post_save',
+        },
+      },
+      {
+        $facet: {
+          perspectives: [
+            { $skip: (page - 1) * limit },
+            { $limit: parseInt(limit, 10) },
+            {
+              $project: {
+                _id: 1,
+                user: {
+                  _id: '$user_data._id',
+                  name: '$user_data.name',
+                  image: '$user_data.image',
+                  googleProfilePicture: '$user_data.googleProfilePicture',
+                },
+                title: 1,
+                image: 1,
+                description: 1,
+                likeCount: 1,
+                commentCount: 1,
+                topic: '$topic_data.name',
+                posted_at: 1,
+                isBlocked: 1,
+                post_type: { $literal: 'perspectives' },
+                post_source: { $literal: 'from_all' },
+                isLikedByUser: { $gt: [{ $size: '$user_like' }, 0] },
+                isPostSaved: { $gt: [{ $size: '$post_save' }, 0] },
+                savedPostId: { $arrayElemAt: ['$post_save._id', 0] },
+              },
+            },
+          ],
+          totalCount: [
+            {
+              $count: 'total',
+            },
+          ],
+        },
+      },
+    ];
+
+    const result = await Perspective.aggregate(aggregatePerspective);
+
+    const perspectives = result[0].perspectives;
+    const total = result[0].totalCount.length > 0 ? result[0].totalCount[0].total : 0;
+
+    res.json({
+      success: true,
+      perspectives,
+      total,
+      limit: parseInt(limit, 10),
+      page: parseInt(page, 10),
+      pages: Math.ceil(total / limit),
+    });
+  } catch (error) {
+    console.error('Error fetching perspectives :', error);
+    res.status(500)
+    throw new Error(`Error fetching perspectives : ${error.message}`)
+  }
+});
+
+
+
 module.exports = {
     addPerspectiveToProfile,
     likePerspective,
@@ -626,5 +932,6 @@ module.exports = {
     getSinglePerspectiveDetailsForAdmin,
     getAllReportsForSinglePerspectiveAdmin,
     getAllReportsForAllPerspectivesAdmin,
+    globalSearchPerspectives,
 
 }

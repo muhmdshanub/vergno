@@ -448,6 +448,53 @@ const getTopicsSuggestionsForHome = asyncHandler( async (req, res) => {
   }
 })
 
+
+const globalSearchTopic = asyncHandler(async (req, res) => {
+  const { searchBy, page = 1, limit = 10 } = req.query;
+
+  const searchQuery = {
+    
+       name: { $regex: searchBy, $options: 'i' } 
+  };
+
+  const skip = (page - 1) * limit;
+
+  const result = await Topic.aggregate([
+    { $match: searchQuery },
+    { $sort: { created_at: -1 } },
+    {
+      $facet: {
+        topics: [
+          { $skip: skip },
+          { $limit: parseInt(limit, 10) },
+          {
+            $project: {
+              name: 1,
+              description: 1,
+              created_at: 1,
+              _id: 1,
+            }
+          }
+        ],
+        totalCount: [
+          { $count: 'count' }
+        ]
+      }
+    }
+  ]);
+
+  const topics = result[0].topics;
+  const totalTopics = result[0].totalCount[0] ? result[0].totalCount[0].count : 0;
+  const totalPages = Math.ceil(totalTopics / limit);
+
+  res.json({
+    topics,
+    page: parseInt(page, 10),
+    totalPages,
+    totalTopics,
+  });
+})
+
   module.exports = { 
     createTopic,
     autofillSuggestions,
@@ -458,5 +505,6 @@ const getTopicsSuggestionsForHome = asyncHandler( async (req, res) => {
     getFollowingTopics,
     getTopicDetails,
     getTopicsSuggestionsForHome,
+    globalSearchTopic,
     
    };

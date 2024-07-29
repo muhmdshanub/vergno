@@ -36,6 +36,7 @@ import TopicsScreen from './screens/TopicsScreen.jsx';
 import TopicProfileScreen from './screens/TopicProfileScreen.jsx';
 import ChatScreen from './screens/ChatScreen.jsx';
 import DiscoverScreen from './screens/DiscoverScreen.jsx';
+import GlobalSearchScreen from './screens/GlobalSearchScreen.jsx';
 // Create the router
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -55,6 +56,7 @@ const router = createBrowserRouter(
               <Route path='/profiles/:userId/*' element={<OtherProfileScreen />} />
               <Route path='/chats' element={<ChatScreen />} />
               <Route path='/discovery' element={<DiscoverScreen />} />
+              <Route path='/search' element={<GlobalSearchScreen />} />
               
             
         

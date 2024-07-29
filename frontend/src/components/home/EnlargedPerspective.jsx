@@ -328,7 +328,14 @@ const handleRemoveComment = (commentId) => {
     <ThemeProvider theme={theme}> {/* Wrap your components with ThemeProvider */}
       <StyledModal open={open} onClose={onClose} sx={{minWidth: 'fit-content' }} >
         
-          <div  style={{borderRadius:'20px', width:'500px', position:'relative'}}>
+          <Box  sx={{borderRadius:'20px',width: {
+              xs: '500px', 
+              sm: '500px',
+              md: '500px',
+              lg: '600px', 
+              xl: '700px' 
+            } , position:'relative'}}>
+              
           <GlassmorphicAppBar position="sticky" style={{borderRadius:"10px 10px 0px 0px",  }}>
               <Toolbar>
                 <Typography variant="h6" component="div" sx={{ flexGrow: 1, color:'#ffffff' }}>
@@ -581,7 +588,7 @@ const handleRemoveComment = (commentId) => {
               
           </GlassmorphicCardCommentInput>
 
-          </div>
+          </Box>
       {/* <AppBar position="static" style={{height:'20px', backgroundColor:'#ffff', minWidth:'100%', bottom:'0', overflowY: 'hidden'}}> Hi </AppBar> */}
           
         

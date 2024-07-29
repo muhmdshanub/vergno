@@ -20,43 +20,7 @@ const GlassmorphicCard = styled(Card)(({ theme }) => ({
   },
 }));
 
-const userData = [
-    {
-      id: 1,
-      name: 'Alice Johnson',
-      avatarUrl: 'https://randomuser.me/api/portraits/women/44.jpg',
-      matches: 5,
-      totalTopics: 11,
-    },
-    {
-      id: 2,
-      name: 'Bob Smith',
-      avatarUrl: 'https://randomuser.me/api/portraits/men/32.jpg',
-      matches: 7,
-      totalTopics: 10,
-    },
-    {
-      id: 3,
-      name: 'Charlie Davis',
-      avatarUrl: 'https://randomuser.me/api/portraits/men/10.jpg',
-      matches: 6,
-      totalTopics: 9,
-    },
-    {
-      id: 4,
-      name: 'Dana Scott',
-      avatarUrl: 'https://randomuser.me/api/portraits/women/20.jpg',
-      matches: 4,
-      totalTopics: 8,
-    },
-    {
-      id: 5,
-      name: 'Evan Lee',
-      avatarUrl: 'https://randomuser.me/api/portraits/men/41.jpg',
-      matches: 8,
-      totalTopics: 12,
-    },
-  ];
+
   
 
 const ResultsCard = ({results}) => {

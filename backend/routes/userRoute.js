@@ -143,9 +143,9 @@ userRouter.post('/discover/enable-toggle', validateDiscoverEnable, validate,  pr
 userRouter.get('/discover/enable-toggle',   protectUser, userController.gettoggleEnableDiscoverStatus)
 userRouter.get('/discover/similar-users', protectUser, userController.discoverSimilarTopicFollowings)
 
-
-
-
-
+userRouter.get('/search/global/people', protectUser, peoplesController.globalSearchPeople )
+userRouter.get('/search/global/topics', protectUser, topicController.globalSearchTopic )
+userRouter.get('/search/global/queries', protectUser, queryController.globalSearchQueries  )
+userRouter.get('/search/global/perspectives', protectUser, perspectiveController.globalSearchPerspectives )
 
 module.exports = userRouter;

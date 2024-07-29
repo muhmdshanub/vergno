@@ -1125,6 +1125,83 @@ const unblockUser = asyncHandler(async (req, res) => {
   res.status(200).json({ message: 'User unblocked successfully' });
 });
 
+const globalSearchPeople = asyncHandler(async (req, res) => {
+
+  console.log("recieved request")
+  const { searchBy, page = 1, limit = 10 } = req.query;
+  const userId = new mongoose.Types.ObjectId(req.user._id); // Assuming the user ID is available in req.user
+
+  const matchStage = {
+    isBlocked: false,
+    $or: [
+      { name: { $regex: searchBy, $options: 'i' } },
+      { email: { $regex: searchBy, $options: 'i' } },
+    ],
+  };
+
+  const aggregateQuery = [
+    { $match: matchStage },
+    {
+      $lookup: {
+        from: 'blockusers',
+        let: { userId: '$_id' },
+        pipeline: [
+          {
+            $match: {
+              $expr: {
+                $or: [
+                  { $and: [{ $eq: ['$blocking_user_id', userId] }, { $eq: ['$blocked_user_id', '$$userId'] }] },
+                  { $and: [{ $eq: ['$blocking_user_id', '$$userId'] }, { $eq: ['$blocked_user_id', userId] }] },
+                ],
+              },
+            },
+          },
+        ],
+        as: 'blockInfo',
+      },
+    },
+    {
+      $match: {
+        'blockInfo.0': { $exists: false },
+      },
+    },
+    {
+      $facet: {
+        users: [
+          { $skip: (page - 1) * limit },
+          { $limit: parseInt(limit, 10) },
+          {
+            $project: {
+              name: 1,
+              image: 1,
+              googleProfilePicture: 1,
+              _id: 1,
+            }
+          }
+        ],
+        totalCount: [
+          { $count: 'total' }
+        ]
+      }
+    }
+  ];
+
+  const result = await User.aggregate(aggregateQuery);
+
+  const users = result[0].users;
+  const total = result[0].totalCount[0] ? result[0].totalCount[0].total : 0;
+
+  res.json({
+    success: true,
+    users,
+    total,
+    limit: parseInt(limit, 10),
+    page: parseInt(page, 10),
+    pages: Math.ceil(total / limit),
+  });
+});
+
+
 
 module.exports ={
     suggestPeoples,
@@ -1140,6 +1217,7 @@ module.exports ={
     blockUser,
     allBlockedUsers,
     unblockUser,
+    globalSearchPeople,
 
 
 

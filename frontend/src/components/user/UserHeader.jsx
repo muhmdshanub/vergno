@@ -138,6 +138,7 @@ const SearchIconWrapper = styled('div')(({ theme }) => ({
 
 const StyledInputBase = styled(InputBase)(({ theme }) => ({
   color: 'inherit',
+  cursor: 'pointer',
   '&:hover': {
     color: alpha(theme.palette.secondary.main, 1),
   },
@@ -146,6 +147,7 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
     // vertical padding + font size from searchIcon
     paddingLeft: `calc(1em + ${theme.spacing(4)})`,
     transition: theme.transitions.create('width'),
+    pointerEvents: 'none', // Disable pointer events to prevent typing
     [theme.breakpoints.up('sm')]: {
       width: '12ch',
       '&:focus': {
@@ -350,13 +352,13 @@ function UserHeader() {
                       }
                     </Logo>
 
-                    <Search>
+                    <Search onClick={()=> {navigate('/search')}}>
                       <SearchIconWrapper>
                         <SearchIcon />
                       </SearchIconWrapper>
                       <StyledInputBase
                         placeholder="Search…"
-                        inputProps={{ 'aria-label': 'search' }}
+                        inputProps={{ 'aria-label': 'search', readOnly: true }}
                       />
                     </Search>
                   </Grid>
@@ -435,13 +437,13 @@ function UserHeader() {
                   <Grid item sm={12} container alignItems="center" justifyContent='center' width="400px">
 
                         <Grid item sm={6} container alignItems="center" justifyContent='center'  width="200px" paddingLeft="1.5rem">
-                                    <Search>
+                                    <Search onClick={()=> {navigate('/search')}}>
                                           <SearchIconWrapper>
                                             <SearchIcon />
                                           </SearchIconWrapper>
                                           <StyledInputBase
                                             placeholder="Search…"
-                                            inputProps={{ 'aria-label': 'search' }}
+                                            inputProps={{ 'aria-label': 'search', readOnly: true }}
                                           />
                                 </Search>
                         </Grid>
@@ -562,13 +564,13 @@ function UserHeader() {
                     <MenuIcon />
                   </IconButton>
 
-                <Search style={{width:'200px'}}>
+                <Search style={{width:'200px'}} onClick={()=> {navigate('/search')}}>
                          <SearchIconWrapper>
                                <SearchIcon />
                         </SearchIconWrapper>
                         <StyledInputBase
                            placeholder="Search…"
-                           inputProps={{ 'aria-label': 'search' }}
+                           inputProps={{ 'aria-label': 'search', readOnly: true }}
                         />
                 </Search>
 
