@@ -22,6 +22,7 @@ import SingleTopicProfileDetailsCard from '../components/topics/SingleTopicProfi
 import InboxConversationCardSkeleton from '../components/skeletons/InboxConversationCardSkeleton';
 import { useSelector } from 'react-redux';
 import InfiniteScrollComponent from '../components/InfiniteScrollComponent';
+import LoadingModal from '../components/LoadingModal';
 
 const UserManagement = () => {
 
@@ -144,7 +145,10 @@ const UserManagement = () => {
     //   </Paper>
     // </Container>
 
+    
+
     <div style={{marginTop:'200px', paddingTop:'100px', maxWidth:'80%', margin:'auto'}}>
+      {/* <LoadingModal open={true} /> */}
      <SingleTopicProfileDetailsCard />
 
      <InboxConversationCardSkeleton />

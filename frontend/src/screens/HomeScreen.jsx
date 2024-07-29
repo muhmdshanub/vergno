@@ -63,25 +63,29 @@ const HomeScreen = () => {
 
   useEffect(() => {
     if (data && isSuccess === true) {
+      
       if (page === 1) {
-        
+       
         setPosts(data.posts || []);
         setPage((prevPage) => prevPage + 1);
         refetch();
       } else {
+        
         setTempPosts(data.posts || []);
       }
         setHasMore((data.posts || []).length > 0);
      
     }
-
-
     
-  }, [ data, refetch]);
+  }, [ data,isSuccess]);
+
+
+
 
   useEffect(()=>{
+   
     setTempPosts([]);
-    setPosts([])
+    
     setPage(1);
     refetch();
   },[postSource, postType])
@@ -95,7 +99,12 @@ const HomeScreen = () => {
 
   const handleScroll = useCallback(() => {
     if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 500 && hasMore && !isLoading) {
-      setPosts((prevPosts) => [...prevPosts, ...tempPosts]);
+      setPosts((prevPosts) => {
+        const newPosts = tempPosts.filter(
+          (tempPost) => !prevPosts.some((prevPost) => prevPost._id === tempPost._id)
+        );
+        return [...prevPosts, ...newPosts];
+      });
       
       setPage((prevPage) => prevPage + 1);
       refetch();

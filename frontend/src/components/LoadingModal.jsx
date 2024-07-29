@@ -1,29 +1,35 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Modal, CircularProgress, Box, Typography } from '@mui/material';
+import { Modal, Box, Typography } from '@mui/material';
 import GradientCircularProgress from './GradientCircularProgress';
 
 const LoadingModal = ({ open }) => {
   return (
     <Modal
       open={open}
-      
-      style={{ zIndex:99999999 }} // Ensure this is higher than other modals (default is 1300)
+      sx={{ zIndex: 99999999 }} // Using sx prop for consistency with MUI v5
     >
       <Box
         display="flex"
         justifyContent="center"
         alignItems="center"
         height="100vh"
+        sx={{
+          backdropFilter: 'blur(10px)', // Apply blur to the background
+        }}
       >
         <Box
           p={3}
-          bgcolor="background.paper"
-          borderRadius="16px" // Rounded corners
-          boxShadow={6} // Higher shadow for more elevation
-          maxWidth="80vw" // Limit the width of the modal
-          maxHeight="100vh" // Limit the height of the modal
-          overflow="auto" // Allow scrolling if content exceeds the modal's dimensions
+          sx={{
+            background: 'rgba(255, 255, 255, 0.45)', // Semi-transparent background
+            borderRadius: '8px', // Rounded corners
+            boxShadow: '0 4px 30px rgba(0, 0, 0, 0.35)', // Soft shadow
+            backdropFilter: 'blur(10px)', // Frosted glass effect
+            border: '1px solid rgba(255, 255, 255, 0.45)', // Light border
+            maxWidth: '80vw', // Limit the width of the modal
+            maxHeight: '100vh', // Limit the height of the modal
+            overflow: 'auto', // Allow scrolling if content exceeds the modal's dimensions
+          }}
         >
           <Box
             display="flex"
@@ -43,5 +49,5 @@ LoadingModal.propTypes = {
   open: PropTypes.bool.isRequired, // Boolean flag to control the modal open state
 };
 
-
 export default LoadingModal;
+
