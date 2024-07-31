@@ -1,0 +1,14 @@
+# Ignore node modules
+node_modules
+
+# Ignore logs and environment files
+*.log
+.DS_Store
+
+# Ignore local configuration files
+.vscode
+.idea
+
+# Ignore temporary files and directories
+*.tmp
+*.swp
