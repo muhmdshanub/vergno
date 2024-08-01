@@ -27,7 +27,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // Middleware
 const corsOptions = {
-    origin: 'http://localhost',
+    origin: `process.env.FRONT_END_URL`,
     credentials: true, // Allow credentials (cookies) to be sent
 };
 app.use(cors(corsOptions));
@@ -67,6 +67,6 @@ app.use(errorHandler);
 
 // Start server
 server.listen(port, () => {
-    console.log(`Server started and running on http://localhost:${port}`);
+    console.log(`Server started and running on ${process.env.FRONT_END_URL}:${port}`);
     checkForBirthdays();
 });

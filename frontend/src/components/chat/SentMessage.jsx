@@ -5,7 +5,6 @@ import { styled } from '@mui/material/styles';
 import relativeTime from '../../utils/relativeTime';
 
 const SentMessageBox = styled(Box)(({ theme }) => ({
-display:'flex',
 
   backgroundColor: 'rgba(0, 194, 255 , 0.45)', // Different background color for sent messages
   color:'rgba(0,0,0)',

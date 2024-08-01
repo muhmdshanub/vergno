@@ -112,7 +112,6 @@ const StyledModal = styled(Modal)(({ theme }) => ({ // Use destructuring to acce
   const CommentContainerCard = styled(Card)(({ theme }) =>({
     alignItems: 'center', 
     paddingTop: '10px', 
-    boxShadow: 3,  
     marginBottom: '10px',
     backgroundColor: 'transparent',
     boxShadow: theme.shadows[3],
@@ -406,7 +405,7 @@ const handleRemoveAnswers = (answerId) => {
     <ThemeProvider theme={theme}> {/* Wrap your components with ThemeProvider */}
       <StyledModal open={open} onClose={onClose} sx={{minWidth: 'fit-content' }}  >
         
-          <Box  sx={{borderRadius:'20px',width: {
+          <Box  sx={{width: {
               xs: '500px', 
               sm: '500px',
               md: '500px',

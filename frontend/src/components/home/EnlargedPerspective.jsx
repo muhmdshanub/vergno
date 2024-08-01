@@ -118,7 +118,6 @@ const StyledModal = styled(Modal)(({ theme }) => ({ // Use destructuring to acce
   const CommentContainerCard = styled(Card)(({ theme }) =>({
     alignItems: 'center', 
     paddingTop: '10px', 
-    boxShadow: 3,  
     marginBottom: '10px',
     backgroundColor:'transparent',
     boxShadow: theme.shadows[3],

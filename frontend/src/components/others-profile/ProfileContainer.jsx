@@ -18,7 +18,6 @@ const ProfileContainer = styled(Box)(({ theme }) => ({
   backdropFilter: 'blur(10px) saturate(200%)',
   WebkitBackdropFilter: 'blur(10px) saturate(200%)', // For Safari support
   border: '1px solid rgba(209, 213, 219, 0.3)', // Semi-transparent border
-  boxShadow: theme.shadows[3],
   transition: 'background-color 0.3s ease, border 0.3s ease, box-shadow 0.3s ease', // Smooth transition
   '&:hover': {
     backgroundColor: 'rgba(255,255,255, 0.05)', // Slightly more opaque background
