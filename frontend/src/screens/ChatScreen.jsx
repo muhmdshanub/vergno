@@ -14,7 +14,7 @@ import io from 'socket.io-client';
 import { useDispatch, useSelector } from 'react-redux';
 
 
-const SOCKET_SERVER_URL = 'http://localhost:8000';
+const SOCKET_SERVER_URL = import.meta.env.VITE_HOST_IP;
 
 
 const scrollBarStyles = {

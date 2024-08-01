@@ -143,7 +143,7 @@ const ChatScreen = () => {
 
   useEffect(() => {
     // Initialize socket connection
-    socketRef.current = io('http://localhost:8000'); // Replace with your socket URL
+    socketRef.current = io(import.meta.env.VITE_HOST_IP); // Replace with your socket URL
   
     socketRef.current.emit('joinRoom', userInfo._id);
   
