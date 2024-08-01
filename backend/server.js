@@ -51,6 +51,28 @@ app.use((req, res, next) => {
     next();
 });
 
+
+
+// Middleware to log Socket.IO requests
+app.use((req, res, next) => {
+    if (req.url.includes('/socket.io/')) {
+        console.log(`Socket.IO request received: ${req.method} ${req.url}`);
+    }
+    next();
+});
+
+// Middleware to log WebSocket upgrade requests
+server.on('upgrade', (req, socket, head) => {
+    if (req.headers.upgrade && req.headers.upgrade.toLowerCase() === 'websocket') {
+        console.log('WebSocket upgrade request received');
+    }
+});
+
+
+
+
+
+
 // Routes
 app.use('/api/v1/users', userRouter);
 app.use('/api/v1/admin', adminRouter);
