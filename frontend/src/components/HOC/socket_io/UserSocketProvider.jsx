@@ -28,7 +28,7 @@ const UserSocketProvider = ({ children }) => {
 
   useEffect(() => {
     if (userInfo?._id) {
-      const socket = io(`import.meta.env.VITE_HOST_IP`);
+      const socket = io(`${import.meta.env.VITE_HOST_IP}`);
 
       socket.emit('joinRoom', userInfo._id);
 
