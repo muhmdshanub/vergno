@@ -431,7 +431,7 @@ const fetchMoreMessages = async (direction) => {
 
 const handleMessageInView = async (message) => {
   
-  console.log("viewed message is ", message)
+  
 
   try {
     const response = await markAsReadMessage({ messageId: message._id });
@@ -458,7 +458,7 @@ const handleMessageInView = async (message) => {
 
         if (updatedConversationIndex !== -1) {
 
-          console.log("found a matching conversation")
+          
 
           // Find the conversation to update
           const conversationToUpdate = prevConversations[updatedConversationIndex];

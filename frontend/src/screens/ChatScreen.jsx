@@ -197,7 +197,7 @@ const ChatScreen = () => {
 
   if (existingConversationsData && isExistingConversationsSuccess === true) {
 
-    console.log(" existing ", existingConversationsData)
+    
     
     if (existingConversationsPage === 1 ) {
       
@@ -212,23 +212,7 @@ const ChatScreen = () => {
   
 }, [existingConversationsData]);
 
-// useEffect(() => {
-//   if ( isExistingConversationsSuccess && existingConversationsData ) {
-//     console.log("existingConversations received", existingConversationsData);
-    
-//     if (existingConversationsPage === 1) {
-//       setExistingConversations(existingConversationsData?.conversations || []);
-//       setExistingConversationsPage((prevPage) => prevPage + 1);
-//       // Refetch if there are more conversations to load
-//       if ((existingConversationsData?.conversations || []).length > 0) {
-//         refetchExistingConversations();
-//       }
-//     } else {
-//       setTempExistingConversations(existingConversationsData?.conversations || []);
-//     }
-//     setHasMoreExistingConversations((existingConversationsData?.conversations || []).length > 0);
-//   }
-// }, [isExistingConversationsSuccess,]);
+
 
 useEffect(()=>{
   if (existingConversationsError) {
@@ -561,7 +545,7 @@ const fetchMoreNewConversations = () =>{
     // Listener for incoming messages
     socketRef.current.on('message_read', async (message) => {
       
-      console.log("message has been read", message)
+      
 
       // Handle message for the selected conversation
       if (selectedConversation) {
