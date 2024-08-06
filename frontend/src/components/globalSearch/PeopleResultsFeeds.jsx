@@ -5,6 +5,7 @@ import { useGlobalSearchPeopleQuery } from '../../slices/api_slices/globalSearch
 import PeopleResultCard from './PeopleResultCard';
 import QueryPostCardAdminSkeleton from '../skeletons/QueryCardAdminSkeleton';
 import ErrorAlertDialog from '../ErrorAlertDialoge';
+import debounce from '../../utils/debounce';
 
 const PeopleResultsFeeds = ({searchBy, selectedTabValue}) => {
   const theme = useTheme();
@@ -12,17 +13,25 @@ const PeopleResultsFeeds = ({searchBy, selectedTabValue}) => {
   const [posts, setPosts] = useState([]);
   const [tempPosts, setTempPosts] = useState([]);
   const [page, setPage] = useState(1);
+  const [debouncedSearch, setDebouncedSearch] = useState(searchBy);
   const [hasMore, setHasMore] = useState(true);
   const [errorFlag, setErrorFlag] = useState('');
   const [errorDialogOpen, setErrorDialogOpen] = useState(false);
 
-  const shouldSkip = searchBy.trim().length < 1 ;
+  const shouldSkip = debouncedSearch.trim().length < 1 ;
 
   const { data, error, isLoading, isSuccess, isError, refetch } = useGlobalSearchPeopleQuery({
-    searchBy,
+    searchBy: debouncedSearch,
     pageNum : page,
     limitNum : 10
   }, { skip: shouldSkip, });
+
+  // Debounce the search input
+  useEffect(() => {
+    const handler = debounce(() => setDebouncedSearch(searchBy), 500);
+    handler();
+    return () => clearTimeout(handler);
+  }, [searchBy]);
 
   const handleRefetch = () => {
     if (!shouldSkip) {
@@ -30,15 +39,13 @@ const PeopleResultsFeeds = ({searchBy, selectedTabValue}) => {
     }
   };
 
-  useEffect(()=>{
-    if(searchBy.trim().length < 1){
-      setPosts([])
+  useEffect(() => {
+    if (debouncedSearch.trim().length < 1) {
+      setPosts([]);
     }
     setPage(1);
     handleRefetch();
-
-
-  },[searchBy])
+  }, [debouncedSearch]);
 
   useEffect(() => {
     if (data && isSuccess === true) {

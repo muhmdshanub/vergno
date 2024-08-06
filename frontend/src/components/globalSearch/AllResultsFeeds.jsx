@@ -8,11 +8,13 @@ import QueryPostCard from '../home/QueryPostCard';
 import PerspectivePostCard from '../home/PerspectivePostCard';
 import QueryPostCardAdminSkeleton from '../skeletons/QueryCardAdminSkeleton';
 import ErrorAlertDialog from '../ErrorAlertDialoge';
+import debounce from '../../utils/debounce';
+
 
 const AllResultsFeeds = ({searchBy, selectedTabValue, setSelectedTabValue}) => {
   const theme = useTheme();
 
- 
+  const [debouncedSearch, setDebouncedSearch] = useState(searchBy);
   const [hasMore, setHasMore] = useState(true);
   const [errorFlag, setErrorFlag] = useState('');
   const [errorDialogOpen, setErrorDialogOpen] = useState(false);
@@ -20,28 +22,35 @@ const AllResultsFeeds = ({searchBy, selectedTabValue, setSelectedTabValue}) => {
   const shouldSkip = searchBy.trim().length < 1 ;
 
   const { data : peoples, error : peoplesError, isLoading : isPeoplesLoading, isSuccess : isPeoplesSuccess, isError : isPeoplesError, refetch : refetchPeoples } = useGlobalSearchPeopleQuery({
-    searchBy,
+    searchBy: debouncedSearch,
     pageNum : 1,
     limitNum : 10
   }, { skip: shouldSkip, });
 
   const { data : topics, error: topicsError, isLoading : isTopicsLoading, isSuccess : isTopicsSuccess, isError : isTopicsError, refetch : refetchTopics } = useGlobalSearchTopicsQuery({
-    searchBy,
+    searchBy: debouncedSearch,
     pageNum : 1,
     limitNum : 10
   }, { skip: shouldSkip, });
 
   const { data : queriesData, error: queriesError, isLoading : isQueriesLoading, isSuccess : isQueriesSuccess, isError : isQueriesError, refetch : refetchQueries } = useGlobalSearchQueriesQuery({
-    searchBy,
+    searchBy: debouncedSearch,
     pageNum : 1,
     limitNum : 10
   }, { skip: shouldSkip, });
 
   const { data : perspectivesData, error : perspectivesError, isLoading : isPerspectivesLoading, isSuccess : isPerspectivesSuccess, isError : isPerspectivesError, refetch : refetchPerspective } = useGlobalSearchPerspectivesQuery({
-    searchBy,
+    searchBy: debouncedSearch,
     pageNum : 1,
     limitNum : 10
   }, { skip: shouldSkip, });
+
+  // Debounce the search input
+  useEffect(() => {
+    const handler = debounce(() => setDebouncedSearch(searchBy), 500);
+    handler();
+    return () => clearTimeout(handler);
+  }, [searchBy]);
 
   const handleRefetch = async () => {
     if (!shouldSkip) {
@@ -52,12 +61,12 @@ const AllResultsFeeds = ({searchBy, selectedTabValue, setSelectedTabValue}) => {
     }
   };
 
-  useEffect(()=>{
+
+
+  useEffect(() => {
     
     handleRefetch();
-
-
-  },[searchBy])
+  }, [debouncedSearch]);
 
 
 

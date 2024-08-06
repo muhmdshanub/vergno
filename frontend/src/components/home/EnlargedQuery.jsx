@@ -581,9 +581,7 @@ const handleRemoveAnswers = (answerId) => {
                                               endMessage={<Box sx={{textAlign:'center', color:'#ffffff'}}>No more comments</Box>}
                                               scrollableTarget="commentsModal"
                                               >
-                                              {comments.length === 0 && !isCommentsLoading && (
-                                                <Box>No comments yet</Box>
-                                              )}
+                                              
                                               {comments.map(comment => (
                                                 <SingleCommentQuery
                                                   key={comment._id}

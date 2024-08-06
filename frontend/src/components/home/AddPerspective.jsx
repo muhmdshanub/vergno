@@ -1,4 +1,4 @@
-import React,{useState, useEffect} from 'react';
+import React,{useState,useRef, useEffect} from 'react';
 import PropTypes from 'prop-types';
 import { Autocomplete, Slider,Snackbar, Alert, Backdrop, CircularProgress, AppBar, Toolbar, Typography, IconButton, Box, Paper, TextField, Button, Modal, MenuItem, FormControl, InputLabel, Select,RadioGroup, FormControlLabel,FormLabel, Radio, Tooltip, Badge } from '@mui/material';
 import { styled, ThemeProvider, useTheme } from '@mui/system'; // Import ThemeProvider
@@ -184,6 +184,8 @@ const AddPerspective = ({ openModal, onCloseModal}) => {
   const [errorDialogTitle, setErrorDialogTitle] = useState('');
   const [errorDialogMessage, setErrorDialogMessage] = useState('');
 
+  const debounceTimeoutRef = useRef(null); // Reference to store the timeout ID
+
 
     const clearAllStates = ()=>{
       setTitle("")
@@ -193,29 +195,34 @@ const AddPerspective = ({ openModal, onCloseModal}) => {
       setPreviewUrl("")
     }
 
-    useEffect(()=>{
-      console.log(selectedTopic)
-    },[selectedTopic])
 
     useEffect(() => {
       let active = true;
+  
+      if (debounceTimeoutRef.current) {
+        clearTimeout(debounceTimeoutRef.current); // Clear previous timeout
+      }
   
       if (inputValue === '') {
         setOptions([]);
         return;
       }
   
-      fetchSuggestions({search : inputValue}).then((result) => {
-        if (active && result.data) {
-          setOptions(result.data);
-        }
-      });
+      debounceTimeoutRef.current = setTimeout(() => {
+        fetchSuggestions({ search: inputValue }).then((result) => {
+          if (active && result.data) {
+            setOptions(result.data);
+          }
+        });
+      }, 300); // Set a delay of 300ms (adjust as needed)
   
       return () => {
         active = false;
+        if (debounceTimeoutRef.current) {
+          clearTimeout(debounceTimeoutRef.current); // Cleanup on unmount or input change
+        }
       };
     }, [inputValue, fetchSuggestions]);
-
 
 
     useEffect(()=>{

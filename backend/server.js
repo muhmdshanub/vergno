@@ -27,7 +27,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // Middleware
 const corsOptions = {
-    origin: `process.env.FRONT_END_URL`,
+    origin:process.env.FRONT_END_URL,
     credentials: true, // Allow credentials (cookies) to be sent
 };
 app.use(cors(corsOptions));

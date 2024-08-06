@@ -5,11 +5,15 @@ import { useGlobalSearchQueriesQuery } from '../../slices/api_slices/globalSearc
 import QueryPostCard from '../home/QueryPostCard';
 import QueryPostCardAdminSkeleton from '../skeletons/QueryCardAdminSkeleton';
 import ErrorAlertDialog from '../ErrorAlertDialoge';
+import debounce from '../../utils/debounce';
+
+
 
 const QueryResultsFeeds = ({searchBy, selectedTabValue}) => {
   const theme = useTheme();
 
   const [posts, setPosts] = useState([]);
+  const [debouncedSearch, setDebouncedSearch] = useState(searchBy);
   const [tempPosts, setTempPosts] = useState([]);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
@@ -19,10 +23,17 @@ const QueryResultsFeeds = ({searchBy, selectedTabValue}) => {
   const shouldSkip = searchBy.trim().length < 1 ;
 
   const { data, error, isLoading, isSuccess, isError, refetch } = useGlobalSearchQueriesQuery({
-    searchBy,
+    searchBy: debouncedSearch,
     pageNum : page,
     limitNum : 10
   }, {refetchOnMountOrArgChange: true, skip: shouldSkip, });
+
+  // Debounce the search input
+  useEffect(() => {
+    const handler = debounce(() => setDebouncedSearch(searchBy), 500);
+    handler();
+    return () => clearTimeout(handler);
+  }, [searchBy]);
 
   const handleRefetch = () => {
     if (!shouldSkip) {
@@ -30,14 +41,13 @@ const QueryResultsFeeds = ({searchBy, selectedTabValue}) => {
     }
   };
 
-  useEffect(()=>{
-    if(searchBy.trim().length < 1){
-      setPosts([])
+  useEffect(() => {
+    if (debouncedSearch.trim().length < 1) {
+      setPosts([]);
     }
     setPage(1);
     handleRefetch();
-
-  },[searchBy])
+  }, [debouncedSearch]);
 
   useEffect(() => {
     if (data && isSuccess === true) {
