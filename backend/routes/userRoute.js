@@ -35,6 +35,8 @@ userRouter.post('/verify-email-otp',validateVerifyEmailOtp,validate, userControl
 userRouter.post('/auth',validateUserLogin, validate, userController.authUser)
 userRouter.post('/logout', protectUser, userController.logoutUser);
 userRouter.all('/refresh-token', userController.refreshUserToken);
+userRouter.get('/themes', protectUser, userController.getAllThemes)
+userRouter.post('/themes', protectUser, userController.updateUserTheme)
 
 
 userRouter.post('/forgot-password',validateForgotPassword, validate, userController.forgotPassword)

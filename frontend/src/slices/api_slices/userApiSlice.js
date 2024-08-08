@@ -94,7 +94,19 @@ export const userApiSlice = apiSlice.injectEndpoints({
         method: 'GET',
       }),
     }),
-    
+    getAllThemes: builder.query({
+      query: () => ({
+        url: `/users/themes`,
+        method: 'GET',
+      }),
+    }),
+    updateThemes: builder.mutation({
+      query: ({themeId}) => ({
+        url: `/users/themes`,
+        method: 'POST',
+        body: {themeId},
+      }),
+    }),
   }),
 });
 
@@ -112,5 +124,7 @@ export const {
   useToggleDiscoverEnableMutation,
   useGetIsDiscoverEnabledQuery,
   useLazyDiscoverSimilarTopicFollowingsQuery,
+  useGetAllThemesQuery,
+  useUpdateThemesMutation,
 
 } = userApiSlice;

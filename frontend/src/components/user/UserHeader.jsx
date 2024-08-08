@@ -36,6 +36,7 @@ import { useUnreadNotificationsCountQuery } from '../../slices/api_slices/notifi
 import { useUnreadMessageCountQuery } from '../../slices/api_slices/messagesApiSlice';
 import {  setUnreadCount } from '../../slices/notificationCountSlice';
 import { setUnreadMessageCount } from '../../slices/messageCountSlice';
+import ThemePopup from './ThemePopup';
 
 const GlassmorphicAppBar = styled(AppBar)(({ theme }) => ({
   overflowX: 'auto',
@@ -180,6 +181,8 @@ const FeatureButton = ({ icon, label,destinationRoute, theme }) => {
   const location = useLocation();
 
   
+
+
   const handleClick = () => {
     navigate(destinationRoute);
   };
@@ -237,6 +240,10 @@ function UserHeader() {
   const theme = useTheme();
   const dispatch = useDispatch();
   const navigate = useNavigate();
+
+  //for theme popup open
+  const [themeOpen, setThemeOpen] = useState(false);
+  const [selectedTheme, setSelectedTheme] = useState('');
 
   const {logoTransparentImage : logoImage} = useSelector( state => state.logoImage)
 
@@ -319,7 +326,12 @@ function UserHeader() {
     navigate("/");
   };
 
-  const settings = [{name:"Profile", function : handleProfileClick},{name:"Logout",function:handleLogout}];
+  const handleThemeClick = ()=>{
+    setThemeOpen(true)
+    console.log("Themes clciked")
+  }
+
+  const settings = [{name:"Profile", function : handleProfileClick},{name:"Themes", function : handleThemeClick},{name:"Logout",function:handleLogout},];
 
   const features = [
     { name: 'Peoples', icon: <GroupAddIcon /> , path:"/peoples"},
@@ -332,46 +344,232 @@ function UserHeader() {
   const minWidthStyle = !isSmallUp ? '400px' : '960px';
 
   return (
-    <GlassmorphicAppBar position="static" >
-      <Container maxWidth="xl" sx={{
+    <GlassmorphicAppBar position="static">
+      <Container
+        maxWidth="xl"
+        sx={{
           minWidth: minWidthStyle, // Set minimum width here
-          overflowX: 'auto', // Allow horizontal scrolling if needed
-        }}>
+          overflowX: "auto", // Allow horizontal scrolling if needed
+        }}
+      >
         <Toolbar disableGutters>
           <Grid container alignItems="center">
+            {isLargeUp && (
+              <>
+                <Grid item md={5} lg={4} container alignItems="flex-end">
+                  <Logo
+                    sx={{
+                      maxWidth: "fit-content",
+                      paddingRight: "0px",
+                      cursor: "pointer",
+                    }}
+                    onClick={() => {
+                      navigate("/");
+                    }}
+                  >
+                    {logoImage ? (
+                      <LogoImageContainer src={logoImage} alt="Logo" />
+                    ) : (
+                      <LogoText
+                        variant="h2"
+                        sx={{ width: "fit-content", paddingRight: "0px" }}
+                      >
+                        VerGno
+                      </LogoText>
+                    )}
+                  </Logo>
 
-          {isLargeUp && (
+                  <Search
+                    onClick={() => {
+                      navigate("/search");
+                    }}
+                  >
+                    <SearchIconWrapper>
+                      <SearchIcon />
+                    </SearchIconWrapper>
+                    <StyledInputBase
+                      placeholder="Search…"
+                      inputProps={{ "aria-label": "search", readOnly: true }}
+                    />
+                  </Search>
+                </Grid>
 
-            <>
+                <Grid item md={5} lg={5} container justifyContent="center">
+                  {features.map((feature) => (
+                    <FeatureButton
+                      key={feature.name}
+                      icon={feature.icon}
+                      label={feature.name}
+                      destinationRoute={feature.path}
+                      theme={theme}
+                    />
+                  ))}
+                </Grid>
 
-                  <Grid item  md={5} lg={4} container alignItems="flex-end">
-
-                    <Logo sx={{ maxWidth: 'fit-content', paddingRight: '0px',cursor: 'pointer' }} onClick={()=> {navigate('/')}}>
-                      { (logoImage) ? (<LogoImageContainer src={logoImage} alt="Logo" />) :
-                      (<LogoText variant="h2" sx={{width:'fit-content', paddingRight:'0px'}}>VerGno</LogoText>)
-                      }
-                    </Logo>
-
-                    <Search onClick={()=> {navigate('/search')}}>
-                      <SearchIconWrapper>
-                        <SearchIcon />
-                      </SearchIconWrapper>
-                      <StyledInputBase
-                        placeholder="Search…"
-                        inputProps={{ 'aria-label': 'search', readOnly: true }}
+                <Grid
+                  item
+                  md={2}
+                  lg={3}
+                  container
+                  justifyContent="flex-end"
+                  alignItems="top"
+                  style={{ marginBottom: "1rem", paddingBottom: "0.5rem" }}
+                >
+                  <div
+                    style={{
+                      justifyContent: "space-between",
+                      marginRight: "2.5rem",
+                      alignItems: "center",
+                      alignContents: "center",
+                    }}
+                  >
+                    <GlassmorphicIconButton
+                      size="large"
+                      aria-label={`show ${unreadMessageCount} new mails`}
+                      color="info"
+                      onClick={handleChatsClick}
+                    >
+                      <Badge badgeContent={unreadMessageCount} color="error">
+                        <MailIcon />
+                      </Badge>
+                    </GlassmorphicIconButton>
+                    <GlassmorphicIconButton
+                      onClick={handleNotificationsClick}
+                      size="large"
+                      aria-label={`show ${unreadCount} new notifications`}
+                      color="info"
+                    >
+                      <Badge badgeContent={unreadCount} color="error">
+                        <NotificationsIcon />
+                      </Badge>
+                    </GlassmorphicIconButton>
+                  </div>
+                  <Tooltip title="Open settings">
+                    <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
+                      <Avatar
+                        alt={userInfo.name}
+                        src={userInfo.image || fallbackImage}
+                        style={{ width: "3.5rem", height: "3.5rem" }}
                       />
-                    </Search>
-                  </Grid>
-
-                  <Grid item  md={5} lg={5} container justifyContent="center">
-                    {features.map((feature) => (
-                      <FeatureButton key={feature.name} icon={feature.icon} label={feature.name} destinationRoute={feature.path} theme={theme} />
+                    </IconButton>
+                  </Tooltip>
+                  <Menu
+                    sx={{ mt: "45px" }}
+                    id="menu-appbar"
+                    anchorEl={anchorElUser}
+                    anchorOrigin={{
+                      vertical: "top",
+                      horizontal: "right",
+                    }}
+                    keepMounted
+                    transformOrigin={{
+                      vertical: "top",
+                      horizontal: "right",
+                    }}
+                    open={Boolean(anchorElUser)}
+                    onClose={handleCloseUserMenu}
+                  >
+                    {settings.map((setting) => (
+                      <MenuItem
+                        key={setting.name}
+                        onClick={handleCloseUserMenu}
+                      >
+                        <Typography
+                          textAlign="center"
+                          onClick={setting.function}
+                        >
+                          {setting.name}
+                        </Typography>
+                      </MenuItem>
                     ))}
-                  </Grid>
+                  </Menu>
+                </Grid>
+              </>
+            )}
 
-                  <Grid item  md={2} lg={3} container justifyContent="flex-end" alignItems="top" style={{marginBottom:'1rem', paddingBottom:'0.5rem'}}>
-                    <div style={{justifyContent:'space-between',marginRight:'2.5rem', alignItems:'center', alignContents:'center'}}>
-                      <GlassmorphicIconButton size="large" aria-label={`show ${unreadMessageCount} new mails`} color="info"  onClick={handleChatsClick}>
+            {!isLargeUp && isSmallUp && (
+              <>
+                <Grid
+                  item
+                  xs={2}
+                  container
+                  alignItems="center"
+                  justifyContent="center"
+                  minWidth="150px"
+                  maxWidth="250px"
+                >
+                  <Logo
+                    sx={{
+                      maxWidth: "fit-content",
+                      paddingRight: "0px",
+                      cursor: "pointer",
+                    }}
+                    onClick={() => {
+                      navigate("/");
+                    }}
+                  >
+                    {logoImage ? (
+                      <LogoImageContainer src={logoImage} alt="Logo" />
+                    ) : (
+                      <LogoText
+                        variant="h2"
+                        sx={{ width: "fit-content", paddingRight: "0px" }}
+                      >
+                        VerGno
+                      </LogoText>
+                    )}
+                  </Logo>
+                </Grid>
+
+                <Grid item xs={8} container alignItems="center" width="500px">
+                  <Grid
+                    item
+                    sm={12}
+                    container
+                    alignItems="center"
+                    justifyContent="center"
+                    width="400px"
+                  >
+                    <Grid
+                      item
+                      sm={6}
+                      container
+                      alignItems="center"
+                      justifyContent="center"
+                      width="200px"
+                      paddingLeft="1.5rem"
+                    >
+                      <Search
+                        onClick={() => {
+                          navigate("/search");
+                        }}
+                      >
+                        <SearchIconWrapper>
+                          <SearchIcon />
+                        </SearchIconWrapper>
+                        <StyledInputBase
+                          placeholder="Search…"
+                          inputProps={{
+                            "aria-label": "search",
+                            readOnly: true,
+                          }}
+                        />
+                      </Search>
+                    </Grid>
+                    <Grid
+                      item
+                      sm={6}
+                      container
+                      alignItems="center"
+                      justifyContent="center"
+                      width="200px"
+                    >
+                      <GlassmorphicIconButton
+                        size="large"
+                        aria-label={`show ${unreadMessageCount} new mails`}
+                        color="info"
+                        onClick={handleChatsClick}
+                      >
                         <Badge badgeContent={unreadMessageCount} color="error">
                           <MailIcon />
                         </Badge>
@@ -386,174 +584,164 @@ function UserHeader() {
                           <NotificationsIcon />
                         </Badge>
                       </GlassmorphicIconButton>
-                    </div>
-                    <Tooltip title="Open settings">
-                      <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                        
-                        <Avatar alt={userInfo.name} src={userInfo.image || fallbackImage} style={{ width: '3.5rem', height: '3.5rem' }} />
-                        
-                      </IconButton>
-                    </Tooltip>
-                    <Menu
-                      sx={{ mt: '45px' }}
-                      id="menu-appbar"
-                      anchorEl={anchorElUser}
-                      anchorOrigin={{
-                        vertical: 'top',
-                        horizontal: 'right',
-                      }}
-                      keepMounted
-                      transformOrigin={{
-                        vertical: 'top',
-                        horizontal: 'right',
-                      }}
-                      open={Boolean(anchorElUser)}
-                      onClose={handleCloseUserMenu}
-                    >
-                      {settings.map((setting) => (
-                        <MenuItem key={setting.name} onClick={handleCloseUserMenu}>
-                          <Typography textAlign="center" onClick={setting.function}>{setting.name}</Typography>
-                        </MenuItem>
-                      ))}
-                    </Menu>
+                    </Grid>
                   </Grid>
-            
-            </>
-          ) } 
-          
-          {(!isLargeUp && isSmallUp) && (
-
-            <>
-              
-              <Grid item xs={2}  container alignItems="center" justifyContent='center' minWidth="150px" maxWidth="250px">
-                <Logo sx={{ maxWidth: 'fit-content', paddingRight: '0px', cursor: 'pointer' }} onClick={()=> {navigate('/')}}>
-                        { (logoImage) ? (<LogoImageContainer src={logoImage} alt="Logo" />) :
-                        (<LogoText variant="h2" sx={{width:'fit-content', paddingRight:'0px'}}>VerGno</LogoText>)
-                        }
-                      </Logo>
+                  <Grid
+                    item
+                    sm={12}
+                    container
+                    alignItems="center"
+                    justifyContent="center"
+                    width="500px"
+                  >
+                    {features.map((feature) => (
+                      <FeatureButton
+                        key={feature.name}
+                        icon={feature.icon}
+                        label={feature.name}
+                        destinationRoute={feature.path}
+                        theme={theme}
+                      />
+                    ))}
+                  </Grid>
                 </Grid>
 
-              <Grid item xs={8} container alignItems="center"   width="500px">
-                  <Grid item sm={12} container alignItems="center" justifyContent='center' width="400px">
-
-                        <Grid item sm={6} container alignItems="center" justifyContent='center'  width="200px" paddingLeft="1.5rem">
-                                    <Search onClick={()=> {navigate('/search')}}>
-                                          <SearchIconWrapper>
-                                            <SearchIcon />
-                                          </SearchIconWrapper>
-                                          <StyledInputBase
-                                            placeholder="Search…"
-                                            inputProps={{ 'aria-label': 'search', readOnly: true }}
-                                          />
-                                </Search>
-                        </Grid>
-                        <Grid item sm={6} container alignItems="center" justifyContent='center' width="200px" >
-                                  <GlassmorphicIconButton size="large" aria-label={`show ${unreadMessageCount} new mails`} color="info"   onClick={handleChatsClick}>
-                                      <Badge badgeContent={unreadMessageCount} color="error">
-                                        <MailIcon />
-                                      </Badge>
-                                </GlassmorphicIconButton>
-                                <GlassmorphicIconButton
-                                  onClick={handleNotificationsClick}
-                                  size="large"
-                                  aria-label={`show ${unreadCount} new notifications`}
-                                  color="info"
-                                >
-                                  <Badge badgeContent={unreadCount} color="error">
-                                    <NotificationsIcon />
-                                  </Badge>
-                                </GlassmorphicIconButton>
-                        </Grid>
-                  
-                  </Grid>
-                  <Grid item sm={12} container alignItems="center" justifyContent='center' width="500px">
-                          {features.map((feature) => (
-                              <FeatureButton key={feature.name} icon={feature.icon} label={feature.name} destinationRoute={feature.path} theme={theme} />
-                            ))}
-                  </Grid>
-              </Grid>
-
-              <Grid item xs={2} container alignItems="center" justifyContent='center' minWidth="100" maxWidth="150px">
-                        <Tooltip title="Open settings">
-                          <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                            
-                            <Avatar alt={userInfo.name} src={userInfo.image?.url || userInfo.image || fallbackImage} style={{ width: '3.5rem', height: '3.5rem' }} />
-                            
-                          </IconButton>
-                        </Tooltip>
-                        <Menu
-                          sx={{ mt: '45px' }}
-                          id="menu-appbar"
-                          anchorEl={anchorElUser}
-                          anchorOrigin={{
-                            vertical: 'top',
-                            horizontal: 'right',
-                          }}
-                          keepMounted
-                          transformOrigin={{
-                            vertical: 'top',
-                            horizontal: 'right',
-                          }}
-                          open={Boolean(anchorElUser)}
-                          onClose={handleCloseUserMenu}
+                <Grid
+                  item
+                  xs={2}
+                  container
+                  alignItems="center"
+                  justifyContent="center"
+                  minWidth="100"
+                  maxWidth="150px"
+                >
+                  <Tooltip title="Open settings">
+                    <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
+                      <Avatar
+                        alt={userInfo.name}
+                        src={
+                          userInfo.image?.url || userInfo.image || fallbackImage
+                        }
+                        style={{ width: "3.5rem", height: "3.5rem" }}
+                      />
+                    </IconButton>
+                  </Tooltip>
+                  <Menu
+                    sx={{ mt: "45px" }}
+                    id="menu-appbar"
+                    anchorEl={anchorElUser}
+                    anchorOrigin={{
+                      vertical: "top",
+                      horizontal: "right",
+                    }}
+                    keepMounted
+                    transformOrigin={{
+                      vertical: "top",
+                      horizontal: "right",
+                    }}
+                    open={Boolean(anchorElUser)}
+                    onClose={handleCloseUserMenu}
+                  >
+                    {settings.map((setting) => (
+                      <MenuItem
+                        key={setting.name}
+                        onClick={handleCloseUserMenu}
+                      >
+                        <Typography
+                          textAlign="center"
+                          onClick={setting.function}
                         >
-                          {settings.map((setting) => (
-                        <MenuItem key={setting.name} onClick={handleCloseUserMenu}>
-                          <Typography textAlign="center" onClick={setting.function}>{setting.name}</Typography>
-                        </MenuItem>
-                      ))}
-                        </Menu>
-              </Grid>
-              
-            </>
+                          {setting.name}
+                        </Typography>
+                      </MenuItem>
+                    ))}
+                  </Menu>
+                </Grid>
+              </>
+            )}
 
-          )}
-
-          {(!isSmallUp) && (
-
-            <>
-              
-              <Grid item xs={12}  container alignItems="center" justifyContent='space-between' width="400px">
-                    <Logo sx={{ maxWidth: 'fit-content', paddingRight: '0px', cursor: 'pointer' }} onClick={()=> {navigate('/')}}>
-                      { (logoImage) ? (<LogoImageContainer src={logoImage} alt="Logo" />) :
-                      (<LogoText variant="h2" sx={{width:'fit-content', paddingRight:'0px'}}>VerGno</LogoText>)
-                      }
-                    </Logo>
+            {!isSmallUp && (
+              <>
+                <Grid
+                  item
+                  xs={12}
+                  container
+                  alignItems="center"
+                  justifyContent="space-between"
+                  width="400px"
+                >
+                  <Logo
+                    sx={{
+                      maxWidth: "fit-content",
+                      paddingRight: "0px",
+                      cursor: "pointer",
+                    }}
+                    onClick={() => {
+                      navigate("/");
+                    }}
+                  >
+                    {logoImage ? (
+                      <LogoImageContainer src={logoImage} alt="Logo" />
+                    ) : (
+                      <LogoText
+                        variant="h2"
+                        sx={{ width: "fit-content", paddingRight: "0px" }}
+                      >
+                        VerGno
+                      </LogoText>
+                    )}
+                  </Logo>
 
                   <Tooltip title="Open settings">
-                          <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                            
-                            <Avatar alt={userInfo.name} src={ userInfo.image || fallbackImage} style={{ width: '3.5rem', height: '3.5rem' }} />
-                            
-                          </IconButton>
+                    <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
+                      <Avatar
+                        alt={userInfo.name}
+                        src={userInfo.image || fallbackImage}
+                        style={{ width: "3.5rem", height: "3.5rem" }}
+                      />
+                    </IconButton>
                   </Tooltip>
-                        <Menu
-                          sx={{ mt: '45px' }}
-                          id="menu-appbar"
-                          anchorEl={anchorElUser}
-                          anchorOrigin={{
-                            vertical: 'top',
-                            horizontal: 'right',
-                          }}
-                          keepMounted
-                          transformOrigin={{
-                            vertical: 'top',
-                            horizontal: 'right',
-                          }}
-                          open={Boolean(anchorElUser)}
-                          onClose={handleCloseUserMenu}
+                  <Menu
+                    sx={{ mt: "45px" }}
+                    id="menu-appbar"
+                    anchorEl={anchorElUser}
+                    anchorOrigin={{
+                      vertical: "top",
+                      horizontal: "right",
+                    }}
+                    keepMounted
+                    transformOrigin={{
+                      vertical: "top",
+                      horizontal: "right",
+                    }}
+                    open={Boolean(anchorElUser)}
+                    onClose={handleCloseUserMenu}
+                  >
+                    {settings.map((setting) => (
+                      <MenuItem
+                        key={setting.name}
+                        onClick={handleCloseUserMenu}
+                      >
+                        <Typography
+                          textAlign="center"
+                          onClick={setting.function}
                         >
-                          {settings.map((setting) => (
-                        <MenuItem key={setting.name} onClick={handleCloseUserMenu}>
-                          <Typography textAlign="center" onClick={setting.function}>{setting.name}</Typography>
-                        </MenuItem>
-                      ))}
-                        </Menu>
-              </Grid>
+                          {setting.name}
+                        </Typography>
+                      </MenuItem>
+                    ))}
+                  </Menu>
+                </Grid>
 
-              <Grid item xs={12}  container alignItems="center" justifyContent='space-between' width="400px">
-                    
-                {/* Drawer button goes here */}
+                <Grid
+                  item
+                  xs={12}
+                  container
+                  alignItems="center"
+                  justifyContent="space-between"
+                  width="400px"
+                >
+                  {/* Drawer button goes here */}
 
                   <IconButton
                     color="inherit"
@@ -564,35 +752,46 @@ function UserHeader() {
                     <MenuIcon />
                   </IconButton>
 
-                <Search style={{width:'200px'}} onClick={()=> {navigate('/search')}}>
-                         <SearchIconWrapper>
-                               <SearchIcon />
-                        </SearchIconWrapper>
-                        <StyledInputBase
-                           placeholder="Search…"
-                           inputProps={{ 'aria-label': 'search', readOnly: true }}
-                        />
-                </Search>
+                  <Search
+                    style={{ width: "200px" }}
+                    onClick={() => {
+                      navigate("/search");
+                    }}
+                  >
+                    <SearchIconWrapper>
+                      <SearchIcon />
+                    </SearchIconWrapper>
+                    <StyledInputBase
+                      placeholder="Search…"
+                      inputProps={{ "aria-label": "search", readOnly: true }}
+                    />
+                  </Search>
 
-                <div style={{alignItems:'center', justifyContent:'center'}}>
-                                    <GlassmorphicIconButton size="large" aria-label={`show ${unreadMessageCount} new mails`} color="info"   onClick={handleChatsClick}>
-                                          <Badge badgeContent={unreadMessageCount} color="error">
-                                            <MailIcon />
-                                          </Badge>
-                                    </GlassmorphicIconButton>
-                                    <GlassmorphicIconButton
-                                      onClick={handleNotificationsClick}
-                                      size="large"
-                                      aria-label={`show ${unreadCount} new notifications`}
-                                      color="info"
-                                    >
-                                      <Badge badgeContent={unreadCount} color="error">
-                                        <NotificationsIcon />
-                                      </Badge>
-                                    </GlassmorphicIconButton>
-                  </div>  
+                  <div
+                    style={{ alignItems: "center", justifyContent: "center" }}
+                  >
+                    <GlassmorphicIconButton
+                      size="large"
+                      aria-label={`show ${unreadMessageCount} new mails`}
+                      color="info"
+                      onClick={handleChatsClick}
+                    >
+                      <Badge badgeContent={unreadMessageCount} color="error">
+                        <MailIcon />
+                      </Badge>
+                    </GlassmorphicIconButton>
+                    <GlassmorphicIconButton
+                      onClick={handleNotificationsClick}
+                      size="large"
+                      aria-label={`show ${unreadCount} new notifications`}
+                      color="info"
+                    >
+                      <Badge badgeContent={unreadCount} color="error">
+                        <NotificationsIcon />
+                      </Badge>
+                    </GlassmorphicIconButton>
+                  </div>
 
-                  
                   <Drawer
                     variant="temporary"
                     open={drawerOpen}
@@ -601,22 +800,43 @@ function UserHeader() {
                       keepMounted: true, // Better open performance on mobile.
                     }}
                     sx={{
-                      display: { xs: 'block', sm: 'none' },
-                      '& .MuiDrawer-paper': { boxSizing: 'border-box', width: 240 },
+                      display: { xs: "block", sm: "none" },
+                      "& .MuiDrawer-paper": {
+                        boxSizing: "border-box",
+                        width: 240,
+                      },
                     }}
                   >
-                    <Box onClick={handleDrawerToggle} sx={{ textAlign: 'center' }}>
-                      <Logo sx={{ maxWidth: 'fit-content', paddingRight: '0px' }}>
-                        { (logoImage) ? (<LogoImageContainer src={logoImage} alt="Logo" />) :
-                        (<LogoText variant="h2" sx={{width:'fit-content', paddingRight:'0px'}}>VerGno</LogoText>)
-                        }
+                    <Box
+                      onClick={handleDrawerToggle}
+                      sx={{ textAlign: "center" }}
+                    >
+                      <Logo
+                        sx={{ maxWidth: "fit-content", paddingRight: "0px" }}
+                      >
+                        {logoImage ? (
+                          <LogoImageContainer src={logoImage} alt="Logo" />
+                        ) : (
+                          <LogoText
+                            variant="h2"
+                            sx={{ width: "fit-content", paddingRight: "0px" }}
+                          >
+                            VerGno
+                          </LogoText>
+                        )}
                       </Logo>
                       <Divider />
                       <List>
                         {features.map((feature) => (
                           <ListItem key={feature.name} disablePadding>
-                            <ListItemButton sx={{ textAlign: 'center' }}>
-                              <FeatureButton key={feature.name} icon={feature.icon} label={""} destinationRoute={feature.path} theme={theme} />
+                            <ListItemButton sx={{ textAlign: "center" }}>
+                              <FeatureButton
+                                key={feature.name}
+                                icon={feature.icon}
+                                label={""}
+                                destinationRoute={feature.path}
+                                theme={theme}
+                              />
                               <ListItemText primary={feature.name} />
                             </ListItemButton>
                           </ListItem>
@@ -624,20 +844,21 @@ function UserHeader() {
                       </List>
                     </Box>
                   </Drawer>
-
-
-              </Grid>
-              
-              
-            </>
-
-          )}
-
+                </Grid>
+              </>
+            )}
 
             
           </Grid>
         </Toolbar>
       </Container>
+      { !!themeOpen && <ThemePopup
+              open={themeOpen}
+              onClose={() => setThemeOpen(false)}
+              // selectedTheme={selectedTheme}
+              // setSelectedTheme={setSelectedTheme}
+              
+            />}
     </GlassmorphicAppBar>
   );
 }

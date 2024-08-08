@@ -68,6 +68,24 @@ const userSchema = mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    color_theme: {
+      _id: {
+        type: mongoose.Schema.Types.ObjectId,
+        default: new mongoose.Types.ObjectId('66b47b2d073bd8907be326ef'), // Set default ObjectId value here
+      },
+      name: {
+        type: String,
+        default: 'default',
+      },
+      background_color: {
+        type: String,
+        default: '#ffffff',
+      },
+      background_image: {
+        type: String,
+        default: 'linear-gradient(-45deg, #FFC796 0%, #FF6B95 100%)',
+      }
+    }
   },
   {
     timestamps: true,

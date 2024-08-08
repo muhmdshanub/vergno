@@ -1,13 +1,14 @@
 
 
 
-import React from "react";
+import React, { useEffect } from "react";
 import { Outlet } from "react-router-dom";
 import { useTheme } from "@mui/material/styles";
 import { Box } from "@mui/material";
 import SwitchHeaders from "./components/HOC/SwitchHeaders";
 import UserSocketProvider from "./components/HOC/socket_io/UserSocketProvider";
 import { keyframes } from '@emotion/react';
+import { useSelector } from 'react-redux';
 
 const gradientAnimation = keyframes`
   0% {
@@ -23,13 +24,16 @@ const gradientAnimation = keyframes`
 
 const App = () => {
   const theme = useTheme();
+  const {userInfo} = useSelector( state => state.userAuth)
+
+
 
   return (
     <UserSocketProvider id="sample-test" idName="test-2" className="class-test">
       <Box
         sx={{
-          
-          backgroundImage: 'linear-gradient(-45deg, #FFC796 0%, #FF6B95 100%)',
+          backgroundColor : userInfo?.color_theme?.background_color || '#ffffff',
+          backgroundImage: userInfo?.color_theme?.background_image||'linear-gradient(-45deg, #FFC796 0%, #FF6B95 100%)',
           paddingBottom: "10px",
           minHeight: "100vh", // Ensure the background color covers the whole viewport
           color: theme.palette.secondary.main,

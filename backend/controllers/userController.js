@@ -10,6 +10,7 @@ const generateUserToken = require("../utils/generateJwtToken.js");
 const { OAuth2Client } = require('google-auth-library');
 const Otp = require('../models/forgotPasswordOtp.js');
 const EmailOtp = require('../models/updateEmailOtp.js')
+const Theme = require('../models/theme.js')
 const cloudinary = require('../configs/cloudinary');
 const jwt = require('jsonwebtoken');
 
@@ -212,6 +213,7 @@ const verifyEmailOtp = asyncHandler(async (req, res) => {
             image: (newUser.image ? newUser.image.url : newUser.googleProfilePicture ? newUser.googleProfilePicture : null),
             isOnline: newUser.isOnline,
             isBlocked: newUser.isBlocked,
+            color_theme: newUser?.color_theme ? newUser?.color_theme : null,
         }
 
         res.status(200).json({ message: "Email verified successfully", userData });
@@ -257,6 +259,7 @@ const authUser = asyncHandler(async (req, res) => {
             image: (user.image ? user.image.url : user.googleProfilePicture ? user.googleProfilePicture : null),
             isOnline: user.isOnline,
             isBlocked: user.isBlocked,
+            color_theme: user?.color_theme ? user?.color_theme : null,
         }
 
         
@@ -1242,6 +1245,41 @@ const discoverSimilarTopicFollowings = asyncHandler( asyncHandler(async (req, re
   }
 }))
 
+const getAllThemes = asyncHandler( async (req, res) => {
+  try {
+    const themes = await Theme.find();
+    res.status(200).json(themes);
+  } catch (error) {
+    res.status(500)
+    throw new Error('Server Error: Unable to fetch themes')
+  }
+})
+
+// Function to update user's theme
+const updateUserTheme = asyncHandler(async (req, res) => {
+  const { themeId } = req.body;
+  const userId = req.user._id;
+
+  try {
+    const theme = await Theme.findById(themeId);
+    if (!theme) {
+      res.status(404);
+      throw new Error('Theme not found');
+    }
+
+    
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      { color_theme : theme },
+      { new: true }
+    );
+
+    res.status(200).json({success : true, message : 'Theme updated successfully.', color_theme: updatedUser.color_theme});
+  } catch (error) {
+    res.status(500);
+    throw new Error('Server Error: Unable to update theme');
+  }
+});
 
 
 
@@ -1271,7 +1309,9 @@ const discoverSimilarTopicFollowings = asyncHandler( asyncHandler(async (req, re
     gettoggleEnableDiscoverStatus,
     discoverSimilarTopicFollowings,
     updateUserEmailForProfile,
-    verifyUserEmailOtpForProfile
+    verifyUserEmailOtpForProfile,
+    getAllThemes,
+    updateUserTheme,
 
   }
 
