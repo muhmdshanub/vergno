@@ -16,10 +16,11 @@ const PerspectiveFeeds = ({userId}) => {
   const [errorFlag, setErrorFlag] = useState('');
   const [errorDialogOpen, setErrorDialogOpen] = useState(false);
 
-  const { data, error, isLoading, isSuccess, isError, refetch } = useGetAllPostsQuery(
-    { postType, postSource, page },
-    { refetchOnMountOrArgChange: false } // Prevent automatic refetch
-  );
+  const { data, error, isLoading, isSuccess, isError, refetch } = useGetAllPerspectivesForOtherUserProfileQuery({
+    userId,
+    pageNum : page,
+    limitNum : 10
+  }, {refetchOnMountOrArgChange: true, });
 
   useEffect(() => {
     if (data && isSuccess === true && data.isUserUnavailable !== true) {
