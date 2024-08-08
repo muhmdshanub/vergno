@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-import { Card, CardHeader, CardContent, CardActions, Avatar, IconButton, Typography, Box, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, TextField, Menu, MenuItem} from '@mui/material';
+import { Card, CardHeader, CardContent, CardActions, Avatar, IconButton, Typography, Box, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, TextField, Menu, MenuItem, FormControl, FormControlLabel, Radio, RadioGroup, FormLabel} from '@mui/material';
 import { Favorite, Share, Comment, MoreVert, Close, Tag } from '@mui/icons-material';
 import LightbulbIcon from '@mui/icons-material/Lightbulb';
 import { styled } from '@mui/system';
@@ -15,6 +15,14 @@ import { useReportPostMutation, useSavePostMutation, useUnsavePostMutation } fro
 import { useSendFollowRequestMutation} from '../../slices/api_slices/peoplesApiSlice';
 import { useNavigate } from 'react-router-dom';
 import { useLocation } from 'react-router-dom';
+
+const reasons = [
+  'Inappropriate Content',
+  'Spam or Misleading',
+  'Harassment or Bullying',
+  'Hate Speech',
+  'Violation of Community Guidelines',
+];
 
 
 const PostCard = styled(Card)(({ theme }) => ({
@@ -69,6 +77,17 @@ const PostActions = styled(CardActions)(({ theme }) => ({
     justifyContent: 'space-between',
     padding: `0 ${theme.spacing(2)}px ${theme.spacing(2)}px`,
 }));
+
+const StyledFormControlLabel = styled(FormControlLabel)(({ theme, checked }) => ({
+  '& .MuiRadio-root': {
+    color: checked ? "#000000" : "#545454",
+    '& .MuiFormControlLabel-label': {
+  color: checked ?  "#000000" : "#666633",
+},
+  },
+  
+}));
+
 
 const PerspectivePostCard = React.memo(({ post, setErrorFlag }) => {
     const theme = useTheme();
@@ -160,7 +179,8 @@ const PerspectivePostCard = React.memo(({ post, setErrorFlag }) => {
   const [anchorEl, setAnchorEl] = useState(null);
   const [openMenu, setOpenMenu] = useState(false);
   const [openDialog, setOpenDialog] = useState(false);
-  const [reason, setReason] = useState('');
+  const [selectedReason, setSelectedReason] = useState('');
+    const [customReason, setCustomReason] = useState('');
 
 
   const handleOpenDialog = () => {
@@ -170,7 +190,8 @@ const PerspectivePostCard = React.memo(({ post, setErrorFlag }) => {
 
     const handleCloseDialog = () => {
       setOpenDialog(false);
-      setReason(''); // Reset reason when closing the dialog
+      setCustomReason(''); // Reset reason when closing the dialog
+      setSelectedReason('')
       setErrorFlag('')
     };
 
@@ -186,15 +207,28 @@ const handleCloseMenu = () => {
   setOpenMenu(false);
 };
 
-const handleSubmitReport = async () => {
-  if (reason.trim() === '' || reason.length > 100) {
-    setErrorFlag('Reason must be provided and less than 100 characters.');
-    return;
+const handleReasonChange = (event) => {
+  setSelectedReason(event.target.value);
+  if (event.target.value !== 'Custom') {
+    setCustomReason('');
   }
+};
 
-  try {
-    await reportPost({
-      reason,
+const handleCustomReasonChange = (event) => {
+  setCustomReason(event.target.value);
+}
+
+const handleSubmitReport = async () => {
+  const reportReason = selectedReason === 'Custom' ? customReason : selectedReason;
+
+    if (reportReason.trim() === '' || reportReason.length > 100) {
+      setErrorFlag('Reason must be provided and less than 100 characters.');
+      return;
+    }
+
+    try {
+      await reportPost({
+        reason : reportReason,
       post_type: 'perspective',
       post_source: 'user_profile',
       post_id: post._id
@@ -290,20 +324,46 @@ const navigateToOtherUserProfile=() =>{
                         <Dialog open={openDialog} onClose={handleCloseDialog}>
                             <DialogTitle>Report Perspective</DialogTitle>
                             <DialogContent>
-                            <DialogContentText>
-                                Please provide the reason for reporting this perspective.
-                            </DialogContentText>
-                            <TextField
-                                autoFocus
-                                margin="dense"
-                                label="Reason"
-                                type="text"
-                                fullWidth
-                                variant="outlined"
-                                value={reason}
-                                onChange={(e) => setReason(e.target.value)}
-                            />
-                            </DialogContent>
+                  <DialogContentText>
+                    Please provide the reason for reporting this perspective.
+                  </DialogContentText>
+                  <FormControl component="fieldset">
+                    <FormLabel component="legend">Select a reason:</FormLabel>
+                    <RadioGroup
+                      value={selectedReason}
+                      onChange={handleReasonChange}
+                    >
+                      {reasons.map((reason) => (
+                        <StyledFormControlLabel
+                          key={reason}
+                          value={reason}
+                          control={<Radio />}
+                          label={reason}
+                          checked={selectedReason === reason}
+                        />
+                      ))}
+                      <StyledFormControlLabel
+                        value="Custom"
+                        control={<Radio />}
+                        label="Other (please specify)"
+                        checked={selectedReason === "Custom"}
+                      />
+                    </RadioGroup>
+                    {selectedReason === "Custom" && (
+                      <TextField
+                        autoFocus
+                        margin="dense"
+                        label="Reason"
+                        type="text"
+                        fullWidth
+                        variant="outlined"
+                        value={customReason}
+                        onChange={handleCustomReasonChange}
+                        sx={{ backgroundColor: "rgba(0, 0, 0, 0.05)" }}
+                      />
+                    )}
+                  </FormControl>
+                </DialogContent>
                             <DialogActions>
                             <Button onClick={handleCloseDialog} color="success">
                                 Cancel

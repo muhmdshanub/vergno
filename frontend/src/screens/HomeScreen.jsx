@@ -225,7 +225,6 @@ const HomeScreen = () => {
                     <MenuItem value="from_all">From All</MenuItem>
                     <MenuItem value="from_users">From users</MenuItem>
                     <MenuItem value="from_topics">From Topics</MenuItem>
-                    <MenuItem value="from_groups">From Groups</MenuItem>
                   </Select>
                 </GlassmorphicFormControl>
               </Box>

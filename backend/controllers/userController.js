@@ -9,6 +9,7 @@ const sendOtpEmail = require("../utils/sendOtpEmail.js");
 const generateUserToken = require("../utils/generateJwtToken.js");
 const { OAuth2Client } = require('google-auth-library');
 const Otp = require('../models/forgotPasswordOtp.js');
+const EmailOtp = require('../models/updateEmailOtp.js')
 const cloudinary = require('../configs/cloudinary');
 const jwt = require('jsonwebtoken');
 
@@ -333,7 +334,7 @@ const forgotPassword = asyncHandler( async(req, res) =>{
   try {
     // Send the OTP to the user's email
     await sendOtpEmail(email, otpToken);
-    res.status(200).json({ message: 'OTP sent to your email.' });
+    res.status(200).json({ success : true, message: 'OTP sent to your email.' });
   } catch (error) {
     // If email sending fails, clean up the OTP entry
     await Otp.deleteOne({ _id: otpEntry._id });
@@ -828,16 +829,16 @@ const getUserAboutInfoForProfile = asyncHandler(async (req, res) => {
 });
 
 
-const updateUserAboutForProfile = async (req, res) => {
-  const { email, dob, gender, nationality, phone } = req.body;
+const updateUserAboutForProfile = asyncHandler( async (req, res) => {
+  const {  dob, gender, nationality, phone } = req.body;
 
   try {
-    const user = await User.findById(req.user.id); // Assuming req.user.id contains the user's ID
+    const user = await User.findById(req.user._id); // Assuming req.user.id contains the user's ID
     if (!user) {
       return res.status(404).json({ msg: 'User not found' });
     }
 
-    user.email = email;
+    
     user.dob = new Date(dob);
     user.gender = gender;
     user.nationality = nationality || user.nationality;
@@ -850,7 +851,97 @@ const updateUserAboutForProfile = async (req, res) => {
     console.error(error.message);
     res.status(500).send('Server error');
   }
-};
+});
+
+const updateUserEmailForProfile = asyncHandler(async (req, res) => {
+  const { email, } = req.body;
+
+  try {
+    const user = await User.findById(req.user._id); // Assuming req.user.id contains the user's ID
+
+    if (!user) {
+      res.status(404)
+      throw new Error('User not found')
+    }
+
+    // Check if the email is already in use by another user
+    const existingUser = await User.findOne({ email });
+
+    if (existingUser ) {
+      res.status(400)
+      throw new Error('Email is already in use .')
+    }
+    
+    const otpToken = Math.floor(100000 + Math.random() * 900000); // 6-digit OTP
+    // Set OTP expiration time (3 minutes from now)
+    const otpExpiresAt = new Date(Date.now() + 3 * 60 * 1000);
+
+    // Upsert the OTP details in the EmailOtp collection
+    await EmailOtp.findOneAndUpdate(
+      {
+        user_id: user._id,
+        old_email: user.email,
+        new_email: email
+      },
+      {
+        user_id: user._id,
+        old_email: user.email,
+        new_email: email,
+        otp: otpToken,
+        otpExpiresAt
+      },
+      {
+        upsert: true,
+        new: true
+      }
+    );
+
+    // Send the OTP to the new email
+    await sendOtpEmail(email, otpToken);
+
+    res.status(200).json({success : true, message: 'OTP sent to your email.', old_email: user.email, new_email: email });
+    
+  } catch (error) {
+    console.error(error.message);
+    res.status(500)
+    throw new Error('Server error')
+  }
+});
+
+const verifyUserEmailOtpForProfile = asyncHandler( async (req, res) => {
+  const { otp, } = req.body;
+
+  try {
+    
+    
+        // Find the OTP entry for the user
+        const emailOtpEntry = await EmailOtp.findOne({
+          user_id: req.user._id, // Assuming req.user._id contains the user's ID
+          otp,
+          otpExpiresAt: { $gte: new Date() } // Check if OTP has not expired
+        });
+    
+        // If OTP entry is not found or is expired
+        if (!emailOtpEntry) {
+          res.status(400)
+          throw new Error('Invalid or expired OTP')
+        }
+    
+        // Update the user's email with the new email address stored in the OTP document
+        await User.findByIdAndUpdate(req.user._id, { email: emailOtpEntry.new_email });
+    
+        // Optionally, remove the OTP entry after successful verification
+        await EmailOtp.deleteOne({ _id: emailOtpEntry._id });
+    
+        res.status(200).json({ success: true, message: 'OTP verified and email updated', new_email: emailOtpEntry.new_email });
+
+    
+  } catch (error) {
+    console.error(error.message);
+    res.status(500)
+    throw new Error('Server Error')
+  }
+});
 
 const getOtherUserProfileData = asyncHandler(async (req, res) => {
   const currentUserId = new mongoose.Types.ObjectId(req.user._id); // current user's ID
@@ -1179,6 +1270,8 @@ const discoverSimilarTopicFollowings = asyncHandler( asyncHandler(async (req, re
     toggleEnableDiscover,
     gettoggleEnableDiscoverStatus,
     discoverSimilarTopicFollowings,
+    updateUserEmailForProfile,
+    verifyUserEmailOtpForProfile
 
   }
 

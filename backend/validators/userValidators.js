@@ -5,9 +5,9 @@ const mongoose = require('mongoose');
 const { nameRegex,  passwordRegex, dobRegex, otpRegex } = require('../utils/regexUtils.js');
 
 const validateUserProfileUpdate = [
-  check('email').isEmail().withMessage('Invalid email format'),
-  check('dob').isISO8601().withMessage('Invalid date of birth'),
-  check('gender').isIn(['male', 'female', 'other']).withMessage('Gender should be male, female, or other'),
+  
+  check('dob').optional().isISO8601().withMessage('Invalid date of birth'),
+  check('gender').optional().isIn(['male', 'female', 'other']).withMessage('Gender should be male, female, or other'),
   check('phone').optional().trim().isLength({ min: 10, max: 10 }).withMessage('Phone number should be exactly 10 characters if provided'),
   check('nationality').optional().trim().isLength({ min: 2 }).withMessage('Nationality should have more than one character if provided')
 ];
@@ -159,6 +159,23 @@ const validateDiscoverEnable = [
     .withMessage('isDiscoverEnabled must be a boolean')
 ]
 
+// Validation rules for updating user email
+const updateEmailValidators = [
+  body('email')
+    .isEmail()
+    .withMessage('Invalid email format')
+    
+];
+
+// Validation rules for verifying OTP
+const verifyOtpValidators = [
+  body('otp')
+    .isLength({ min: 6, max: 6 })
+    .withMessage('OTP must be a 6-digit number')
+    .isNumeric()
+    .withMessage('OTP must be numeric'),
+];
+
 module.exports = {
   validateUserProfileUpdate,
   validateUserRegistration,
@@ -176,5 +193,8 @@ module.exports = {
   validateGetOtherUserProfileData,
   validateGetOtherUserAboutInfo,
   validateDiscoverEnable,
+  updateEmailValidators,
+  verifyOtpValidators,
+
   
 };

@@ -285,6 +285,12 @@ export const adminApiSlice = apiSlice.injectEndpoints({
         params: { pageNum: page, limitNum: limit, sortBy }
       }),
     }),
+    getInfoForHomeAdmin: builder.query({
+      query: () =>({ 
+        url: `${ADMIN_URL}/home/info`,
+        method: 'GET',
+      }),
+    }),
 
   }),
 });
@@ -329,6 +335,7 @@ export const {
   useDeleteReportOnAnswerFromAdminMutation,
   useCreateTopicFromAdminMutation,
   useGetAllTopicsForAdminQuery,
+  useGetInfoForHomeAdminQuery,
   
 
 } = adminApiSlice;

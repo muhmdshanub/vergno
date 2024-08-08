@@ -1406,7 +1406,7 @@ const deleteQueryReply = asyncHandler(async (req, res) => {
     try {
         await deleteReplyAndChildren(replyObjectId);
 
-        await QueryComment.findByIdAndUpdate(parentComment._id, { $inc: { replyCount: -1 } });
+        await QueryComment.findByIdAndUpdate(parentComment._id, { $inc: { reply_count: -1 } });
 
         res.status(200).json({
             success: true,
@@ -1519,7 +1519,7 @@ const deletePerspectiveReply = asyncHandler(async (req, res) => {
         await deleteReplyAndChildren(replyObjectId);
 
         
-        await PerspectiveComment.findByIdAndUpdate(parentComment._id, { $inc: { replyCount: -1 } });
+        await PerspectiveComment.findByIdAndUpdate(parentComment._id, { $inc: { reply_count: -1 } });
         
 
         res.status(200).json({

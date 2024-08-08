@@ -27,6 +27,8 @@ adminRouter.post('/signup',authAdminValidator, validate, adminController.registe
 adminRouter.post('/auth',authAdminValidator, validate, adminController.authAdmin);
 adminRouter.post('/logout', protectAdmin, adminController.logoutAdmin);
 
+adminRouter.get('/home/info', protectAdmin, adminController.getInfoForHome)
+
 adminRouter.post('/topic/craete',validateCreateTopic,validate, protectAdmin, topicController.createTopic);
 adminRouter.get('/topic/all',validateGetAllTopicsForAdmin, validate, protectAdmin, topicController.getAllTopicsForAdmin)
 

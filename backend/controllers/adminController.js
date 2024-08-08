@@ -1,5 +1,9 @@
 const asyncHandler = require("express-async-handler");
 const Admin = require("../models/admin.js");
+const User = require('../models/user');
+const Topic = require('../models/topic');
+const Query = require('../models/query');
+const Perspective = require('../models/perspective');
 const generateAdminToken = require("../utils/generateAdminJwtToken.js");
 
 
@@ -74,10 +78,32 @@ const logoutAdmin = asyncHandler(async (req, res) => {
     res.status(200).json({ message: "Admin logged out." });
 });
 
-
+const getInfoForHome = asyncHandler( async (req, res) => {
+    
+    try {
+      const userCount = await User.countDocuments({});
+      const onlineUserCount = await User.countDocuments({ isOnline: true });
+      const topicCount = await Topic.countDocuments({});
+      const queryCount = await Query.countDocuments({});
+      const perspectiveCount = await Perspective.countDocuments({});
+      
+      res.json({success: true,
+        userCount,
+        onlineUserCount,
+        topicCount,
+        queryCount,
+        perspectiveCount
+      });
+    } catch (error) {
+      console.error('Error fetching admin stats:', error);
+      res.status(500)
+      throw new Error('Server error. Please try again later.')
+    }
+  })
 
 module.exports = {
     authAdmin,
     registerAdmin,
     logoutAdmin,
+    getInfoForHome,
 };

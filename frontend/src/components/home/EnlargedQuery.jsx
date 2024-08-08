@@ -1,6 +1,6 @@
 import React,{useState, useEffect, useRef} from 'react';
 import PropTypes from 'prop-types';
-import { Card, CardHeader, CardContent, CardActions, Avatar, AppBar, Toolbar, Typography, IconButton, Box,  Button, Modal,Menu, MenuItem, FormControl, Select,Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, TextField } from '@mui/material';
+import { Card, CardHeader, CardContent, CardActions, Avatar, AppBar, Toolbar, Typography, IconButton, Box,  Button, Modal,Menu, MenuItem,  Select,Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, TextField, FormControl, FormControlLabel, Radio, RadioGroup, FormLabel } from '@mui/material';
 import { styled, ThemeProvider, useTheme } from '@mui/system'; // Import ThemeProvider
 import CloseIcon from '@mui/icons-material/Close';
 import {MoreVert, HelpOutline, Tag, Favorite, Share, CheckCircle, Comment,} from '@mui/icons-material'
@@ -17,7 +17,13 @@ import InfiniteScroll from 'react-infinite-scroll-component';
 import CommentLoading from '../CommentLoading.jsx';
 import { useLocation } from 'react-router-dom';
 
-
+const reasons = [
+  'Inappropriate Content',
+  'Spam or Misleading',
+  'Harassment or Bullying',
+  'Hate Speech',
+  'Violation of Community Guidelines',
+];
 
 const scrollBarStyles = {
   '&::-webkit-scrollbar': {
@@ -135,6 +141,16 @@ const StyledModal = styled(Modal)(({ theme }) => ({ // Use destructuring to acce
   }))
 
   
+  const StyledFormControlLabel = styled(FormControlLabel)(({ theme, checked }) => ({
+    '& .MuiRadio-root': {
+      color: checked ? "#000000" : "#545454",
+      '& .MuiFormControlLabel-label': {
+    color: checked ?  "#000000" : "#666633",
+  },
+    },
+    
+  }));
+
 
 
 const EnlargedQuery = React.memo(({ open, onClose, post, relativeTime, isLiked, likeCount, handleLike, handleUnlike, isSaved, handleSaveQuery,handleUnsaveQuery, setErrorFlag, setCommentCount, setAnswerCount, followStatus, handleFollow, navigateToOtherUserProfile}) => {
@@ -166,7 +182,8 @@ const EnlargedQuery = React.memo(({ open, onClose, post, relativeTime, isLiked, 
   const [anchorEl, setAnchorEl] = useState(null);
   const [openMenu, setOpenMenu] = useState(false);
   const [openDialog, setOpenDialog] = useState(false);
-  const [reason, setReason] = useState('');
+  const [selectedReason, setSelectedReason] = useState('');
+    const [customReason, setCustomReason] = useState('');
 
 
   const handleOpenDialog = () => {
@@ -176,7 +193,8 @@ const EnlargedQuery = React.memo(({ open, onClose, post, relativeTime, isLiked, 
 
     const handleCloseDialog = () => {
       setOpenDialog(false);
-      setReason(''); // Reset reason when closing the dialog
+      setCustomReason(''); // Reset reason when closing the dialog
+      setSelectedReason('')
       setErrorFlag('')
     };
 
@@ -192,15 +210,28 @@ const handleCloseMenu = () => {
   setOpenMenu(false);
 };
 
-const handleSubmitReport = async () => {
-  if (reason.trim() === '' || reason.length > 100) {
-    setErrorFlag('Reason must be provided and less than 100 characters.');
-    return;
+const handleReasonChange = (event) => {
+  setSelectedReason(event.target.value);
+  if (event.target.value !== 'Custom') {
+    setCustomReason('');
   }
+};
 
-  try {
-    await reportPost({
-      reason,
+const handleCustomReasonChange = (event) => {
+  setCustomReason(event.target.value);
+}
+
+const handleSubmitReport = async () => {
+  const reportReason = selectedReason === 'Custom' ? customReason : selectedReason;
+
+    if (reportReason.trim() === '' || reportReason.length > 100) {
+      setErrorFlag('Reason must be provided and less than 100 characters.');
+      return;
+    }
+
+    try {
+      await reportPost({
+        reason : reportReason,
       post_type: 'query',
       post_source: 'user_profile',
       post_id: post._id
@@ -476,20 +507,46 @@ const handleRemoveAnswers = (answerId) => {
                                       <Dialog open={openDialog} onClose={handleCloseDialog}>
                                           <DialogTitle>Report Query</DialogTitle>
                                           <DialogContent>
-                                          <DialogContentText>
-                                              Please provide the reason for reporting this query.
-                                          </DialogContentText>
-                                          <TextField
-                                              autoFocus
-                                              margin="dense"
-                                              label="Reason"
-                                              type="text"
-                                              fullWidth
-                                              variant="outlined"
-                                              value={reason}
-                                              onChange={(e) => setReason(e.target.value)}
-                                          />
-                                          </DialogContent>
+                  <DialogContentText>
+                    Please provide the reason for reporting this query.
+                  </DialogContentText>
+                  <FormControl component="fieldset">
+                    <FormLabel component="legend">Select a reason:</FormLabel>
+                    <RadioGroup
+                      value={selectedReason}
+                      onChange={handleReasonChange}
+                    >
+                      {reasons.map((reason) => (
+                        <StyledFormControlLabel
+                          key={reason}
+                          value={reason}
+                          control={<Radio />}
+                          label={reason}
+                          checked={selectedReason === reason}
+                        />
+                      ))}
+                      <StyledFormControlLabel
+                        value="Custom"
+                        control={<Radio />}
+                        label="Other (please specify)"
+                        checked={selectedReason === "Custom"}
+                      />
+                    </RadioGroup>
+                    {selectedReason === "Custom" && (
+                      <TextField
+                        autoFocus
+                        margin="dense"
+                        label="Reason"
+                        type="text"
+                        fullWidth
+                        variant="outlined"
+                        value={customReason}
+                        onChange={handleCustomReasonChange}
+                        sx={{ backgroundColor: "rgba(0, 0, 0, 0.05)" }}
+                      />
+                    )}
+                  </FormControl>
+                </DialogContent>
                                           <DialogActions>
                                           <Button onClick={handleCloseDialog} color="success">
                                               Cancel

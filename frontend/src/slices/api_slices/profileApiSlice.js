@@ -52,6 +52,20 @@ export const profileApiSlice = apiSlice.injectEndpoints({
           body: data,
         }),
       }),
+      updateUserEmailInfo: builder.mutation({
+        query: ({email}) => ({
+          url: `${PROFILE_URL}/about/email/update`,
+          method: 'PUT',
+          body: {email},
+        }),
+      }),
+      submitUserEmailOtpInfo: builder.mutation({
+        query: ({otp}) => ({
+          url: `${PROFILE_URL}/about/email/otp`,
+          method: 'PUT',
+          body: {otp},
+        }),
+      }),
       getOtherUserProfileCardInfo: builder.query({
         query: ({userId}) => ({
           url: `${PROFILE_URL}/other-user/info`,
@@ -96,5 +110,7 @@ export const {
     useGetOtherUserAboutInfoForProfileQuery,
     useGetAllQueriesForOtherUserProfileQuery,
     useGetAllPerspectivesForOtherUserProfileQuery,
+    useUpdateUserEmailInfoMutation,
+    useSubmitUserEmailOtpInfoMutation,
 
 } = profileApiSlice

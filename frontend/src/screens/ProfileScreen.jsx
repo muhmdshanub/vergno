@@ -107,8 +107,9 @@ const StrongTab = styled(Tab)(({ theme }) => ({
 const options = [
   { text: 'Queries', component: <QueryFeeds />}, 
   {text:'Perspectives', component : <PerspectiveFeeds />},
+  {text: 'Saved', component : <SavedPostsFeed />},
   {text:'About', component : <About />},
-  {text: 'Saved', component : <SavedPostsFeed />}
+  
   // You can add more tabs here for Perspectives and About later
 ];
 

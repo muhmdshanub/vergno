@@ -1,6 +1,6 @@
 import React, { useState, useEffect , useCallback, useRef} from 'react';
 import PropTypes from 'prop-types';
-import { styled, Avatar, Box,Card, CardHeader, CardContent, CardActions,TextField, Button, IconButton,Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material';
+import { styled, Avatar, Box,Card, CardHeader, CardContent, CardActions,TextField, Button, IconButton,Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, FormControl, FormControlLabel, Radio, RadioGroup, FormLabel } from '@mui/material';
 import { useTheme } from '@emotion/react';
 import { useSelector } from 'react-redux';
 import { Comment, Close } from '@mui/icons-material';
@@ -11,6 +11,13 @@ import LoadingModal from '../LoadingModal.jsx';
 import CommentLoading from '../CommentLoading.jsx';
 
 
+const reasons = [
+  'Inappropriate Content',
+  'Spam or Misleading',
+  'Harassment or Bullying',
+  'Hate Speech',
+  'Violation of Community Guidelines',
+];
 
 const scrollBarStyles = {
   '&::-webkit-scrollbar': {
@@ -106,10 +113,22 @@ const CommentActions = styled('div')(({ theme }) => ({
     border: '1px solid rgba(209, 213, 219, 0.6)',
   }))
 
+  const StyledFormControlLabel = styled(FormControlLabel)(({ theme, checked }) => ({
+    '& .MuiRadio-root': {
+      color: checked ? "#000000" : "#545454",
+      '& .MuiFormControlLabel-label': {
+    color: checked ?  "#000000" : "#666633",
+  },
+    },
+    
+  }));
+
 const SingleCommentPerspective = ({perspectiveId, comment, setErrorFlag, onRemoveComment }) => {
     const theme = useTheme();
     const [replyBox, setReplyBox] = useState(false);
     const [viewReplies, setViewreplies] = useState(false);
+    const [replyCount, setReplyCount] = useState(comment.reply_count || 0)
+
 
     const {userInfo} = useSelector(state => state.userAuth)
     const {fallbackImage} = useSelector(state => state.fallbackImage)
@@ -150,6 +169,7 @@ const SingleCommentPerspective = ({perspectiveId, comment, setErrorFlag, onRemov
         setCommentContent(''); // Clear the input field after successful submission
         setReplyBox(false)
 
+        setReplyCount(prevCount => prevCount+1)
         // Update the comments state with the new comment at the beginning
         setComments(prevComments => {
           const newComments = [response.comment, ...prevComments];
@@ -217,7 +237,8 @@ const SingleCommentPerspective = ({perspectiveId, comment, setErrorFlag, onRemov
     //report coment
 
     const [openDialog, setOpenDialog] = useState(false);
-    const [reason, setReason] = useState('');
+    const [selectedReason, setSelectedReason] = useState('');
+    const [customReason, setCustomReason] = useState('');
 
     const [reportComment] = useReportCommentMutation();
 
@@ -229,20 +250,33 @@ const SingleCommentPerspective = ({perspectiveId, comment, setErrorFlag, onRemov
 
       const handleCloseDialog = () => {
         setOpenDialog(false);
-        setReason(''); // Reset reason when closing the dialog
+        setCustomReason(''); // Reset reason when closing the dialog
+        setSelectedReason('')
         setErrorFlag('')
       };
 
+      const handleReasonChange = (event) => {
+        setSelectedReason(event.target.value);
+        if (event.target.value !== 'Custom') {
+          setCustomReason('');
+        }
+      };
+    
+      const handleCustomReasonChange = (event) => {
+        setCustomReason(event.target.value);
+      }
 
       const handleSubmitReport = async () => {
-        if (reason.trim() === '' || reason.length > 100) {
+        const reportReason = selectedReason === 'Custom' ? customReason : selectedReason;
+
+        if (reportReason.trim() === '' || reportReason.length > 100) {
           setErrorFlag('Reason must be provided and less than 100 characters.');
           return;
         }
       
         try {
           await reportComment({
-            reason,
+            reason : reportReason,
             comment_type: 'perspectiveComment',
             comment_source: 'user_profile',
             comment_id: comment._id
@@ -306,6 +340,7 @@ const [deletePerspectiveReply] = useDeletePerspectiveReplyMutation();
 
 const removeChildReply = (commentId) =>{
   setComments(prevComments => prevComments.filter(comment => comment._id !== commentId));
+  setReplyCount(count => count-1)
 }
 
 const handleDeleteComment = async () => {
@@ -328,7 +363,9 @@ const handleDeleteReply = async (commentId) => {
       const result = await deletePerspectiveReply({ reply_id: commentId }).unwrap();
       if(result.success === true){
         onRemoveComment(comment._id);
+        
       }
+      
       
   } catch (error) {
       console.error('Failed to delete reply:', error);
@@ -368,9 +405,9 @@ const handleDelete = async () => {
           </div>
           <LikeCount sx={{marginRight:"20px", color:'#ffffff'}}>{likeCount} likes</LikeCount>
         </CommentActions>
-        <Button onClick={handleViewReplies} variant="text" style={{color:"#ffffff"}}>
-            {viewReplies ? 'Hide Replies' : 'View Replies'} ({comment.reply_count})
-        </Button>
+        {(replyCount > 0) && <Button onClick={handleViewReplies} variant="text" style={{color:"#ffffff"}}>
+            {viewReplies ? 'Hide Replies' : 'View Replies'} ({replyCount})
+        </Button>}
 
         { replyBox && (
             <ReplyCard sx={{  alignItems: 'center', paddingTop:"7px",paddingBottom:"0", boxShadow: 3, borderRadius: '10px', marginBottom: '0px',position:"relative",  }}>
@@ -443,14 +480,14 @@ const handleDelete = async () => {
         </ReplyCard>
         )}
 
-          { viewReplies && (
-                      <Card sx={{  alignItems: 'center', paddingTop: '10px', boxShadow: 3,  marginBottom: '10px', marginRight:"0px",marginleft:"0px" , width: " 400px" , overflowX:'auto', overflowY:'auto', backgroundColor: 'transparent',  }} id="commentsReplyBox">
+          { (viewReplies &&replyCount > 0) && (
+                      <Card sx={{  alignItems: 'center', paddingTop: '10px', boxShadow: 3,  marginBottom: '10px', marginRight:"0px",marginleft:"0px" , minWidth: " 400px" , overflowX:'auto', overflowY:'auto', backgroundColor: 'transparent',  }} id="commentsReplyBox">
                           <InfiniteScroll
                                               dataLength={comments.length}
                                               next={fetchMoreComments}
                                               hasMore={hasMoreComments}
                                               loader={<CommentLoading count={2}  />}
-                                              endMessage={<Box>No more Replies.</Box>}
+                                              endMessage={<Box sx={{textAlign:'center', color:'#ffffff'}} >No more Replies.</Box>}
                                               scrollableTarget="commentsReplyBox"
                                               >
                                               
@@ -476,16 +513,42 @@ const handleDelete = async () => {
                                           <DialogContentText>
                                               Please provide the reason for reporting this query.
                                           </DialogContentText>
-                                          <TextField
-                                              autoFocus
-                                              margin="dense"
-                                              label="Reason"
-                                              type="text"
-                                              fullWidth
-                                              variant="outlined"
-                                              value={reason}
-                                              onChange={(e) => setReason(e.target.value)}
-                                          />
+                                          <FormControl component="fieldset">
+                    <FormLabel component="legend">Select a reason:</FormLabel>
+                    <RadioGroup
+                      value={selectedReason}
+                      onChange={handleReasonChange}
+                    >
+                      {reasons.map((reason) => (
+                        <StyledFormControlLabel
+                          key={reason}
+                          value={reason}
+                          control={<Radio />}
+                          label={reason}
+                          checked={selectedReason === reason}
+                        />
+                      ))}
+                      <StyledFormControlLabel
+                        value="Custom"
+                        control={<Radio />}
+                        label="Other (please specify)"
+                        checked={selectedReason === "Custom"}
+                      />
+                    </RadioGroup>
+                    {selectedReason === "Custom" && (
+                      <TextField
+                        autoFocus
+                        margin="dense"
+                        label="Reason"
+                        type="text"
+                        fullWidth
+                        variant="outlined"
+                        value={customReason}
+                        onChange={handleCustomReasonChange}
+                        sx={{ backgroundColor: "rgba(0, 0, 0, 0.05)" }}
+                      />
+                    )}
+                  </FormControl>
                                           </DialogContent>
                                           <DialogActions>
                                           <Button onClick={handleCloseDialog} color="success">
@@ -521,7 +584,8 @@ SingleCommentPerspective.propTypes = {
     liked: PropTypes.bool,
     reply_count: PropTypes.number,
     isAbleToDelete: PropTypes.bool,
-    is_reply: PropTypes.bool
+    is_reply: PropTypes.bool,
+    set_parent_comment_reply_count : PropTypes.func,
   }).isRequired,
   setErrorFlag: PropTypes.func.isRequired,
   onRemoveComment: PropTypes.func.isRequired

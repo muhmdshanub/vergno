@@ -12,7 +12,7 @@ const messageController = require('../controllers/messageController.js')
 const protectUser = require('../middlewares/userAuthMiddleware.js');
 const verifyFirebaseToken = require('../middlewares/verifyFirebaseToken.js');
 const {uploadProfilePhoto, uploadQueryPhoto, uploadPerspectivePhoto} = require('../configs/multer.js');
-const { validateUserProfileUpdate,validateUserRegistration,validateVerifyEmailOtp, validateUserLogin, validateVerifyOtpForgotPassword, validateForgotPassword, validateResetForgotPassword, validateFirebaseAuth, validateUpdateUserName, validateGetOtherUserProfileData, validateGetOtherUserAboutInfo, validateDiscoverEnable } = require('../validators/userValidators');
+const { validateUserProfileUpdate,validateUserRegistration,validateVerifyEmailOtp, validateUserLogin, validateVerifyOtpForgotPassword, validateForgotPassword, validateResetForgotPassword, validateFirebaseAuth, validateUpdateUserName, validateGetOtherUserProfileData, validateGetOtherUserAboutInfo, validateDiscoverEnable, updateEmailValidators, verifyOtpValidators } = require('../validators/userValidators');
 const validate = require('../middlewares/validationMiddleware.js'); 
 const { validateAutofillSuggestions, validatesuggestTopics, validateFollowTopic, validateGetAllQueriesForTopic, validateDetailsTopic } = require('../validators/topicValidator.js');
 const { validateAddQuery, likeQueryValidator } = require('../validators/queryValidator.js');
@@ -122,6 +122,9 @@ userRouter.get('/profile/queries/all',getAllQueriesForProfileValidator, validate
 userRouter.get('/profile/perspectives/all',getAllQueriesForProfileValidator, validate, protectUser, allPostsController.getAllPerspectivesForUserProfile);
 userRouter.get('/profile/about', protectUser, userController.getUserAboutInfoForProfile)
 userRouter.put('/profile/about/update',validateUserProfileUpdate, validate, protectUser, validateUserProfileUpdate, validate, userController.updateUserAboutForProfile)
+userRouter.put('/profile/about/email/update',updateEmailValidators, validate, protectUser, userController.updateUserEmailForProfile )
+userRouter.put('/profile/about/email/otp', verifyOtpValidators, validate, protectUser, userController.verifyUserEmailOtpForProfile)
+
 
 userRouter.get('/profile/other-user/info',validateGetOtherUserProfileData, validate, protectUser, userController.getOtherUserProfileData)
 userRouter.get('/profile/other-user/about',validateGetOtherUserAboutInfo, validate, protectUser, userController.getOtherUserAboutInfoForProfile)

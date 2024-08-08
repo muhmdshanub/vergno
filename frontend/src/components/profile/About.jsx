@@ -7,6 +7,7 @@ import { Box, Typography, CircularProgress, TextField, Button, Paper } from '@mu
 import { styled } from '@mui/system';
 import { useGetUserAboutInfoForProfileQuery, useUpdateUserAboutInfoMutation } from '../../slices/api_slices/profileApiSlice';
 import ErrorAlertDialog from '../ErrorAlertDialoge';
+import EmailUpdateForm from './EmailUpdateForm';
 
 const StyledPaper = styled(Paper)(({ theme }) => ({
   padding: theme.spacing(3),
@@ -54,7 +55,7 @@ const About = () => {
 
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({
-    email: '',
+    
     dob: '',
     gender: '',
     nationality: '',
@@ -67,7 +68,7 @@ const About = () => {
   useEffect(() => {
     if (userProfileData) {
       setFormData({
-        email: userProfileData.email || '',
+        
         dob: userProfileData.dob ? new Date(userProfileData.dob).toLocaleDateString('en-CA') : '',
         gender: userProfileData.gender || '',
         nationality: userProfileData.nationality || '',
@@ -83,7 +84,7 @@ const About = () => {
   const handleCancelClick = () => {
     setIsEditing(false);
     setFormData({
-      email: userProfileData.email || '',
+      
       dob: userProfileData.dob ? new Date(userProfileData.dob).toLocaleDateString('en-CA') : '',
       gender: userProfileData.gender || '',
       nationality: userProfileData.nationality || '',
@@ -100,10 +101,7 @@ const About = () => {
   };
 
 
-  const validateEmail = (email) => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
-  };
+  
 
   const validateDate = (date) => {
     return !isNaN(Date.parse(date));
@@ -111,15 +109,13 @@ const About = () => {
 
   const validateGender = (gender) => {
     const validGenders = ['male', 'female', 'other'];
-    return validGenders.includes(gender.toLowerCase());
+    return validGenders.includes(gender);
   };
 
   const validateForm = () => {
     let validationErrors = '';
 
-    if (!validateEmail(formData.email)) {
-      validationErrors += 'Invalid email format. ';
-    }
+    
 
     if (!validateDate(formData.dob)) {
       validationErrors += 'Invalid date of birth. ';
@@ -152,10 +148,17 @@ const About = () => {
       return;
     }
 
-
+    // Create a new object to hold the updated form data with empty fields set to null
+    const sanitizedFormData = Object.entries(formData).reduce((acc, [key, value]) => {
+      if (value.trim() !== '') {
+        acc[key] = value;
+      }
+      return acc;
+    }, {});
 
     try {
-      await updateUserAboutInfo(formData);
+
+      await updateUserAboutInfo(sanitizedFormData);
       setIsEditing(false);
       refetch();
     } catch (error) {
@@ -182,17 +185,10 @@ const About = () => {
       <Typography variant="h5" gutterBottom sx={{ marginBottom: '30px' }}>
         About
       </Typography>
+      <EmailUpdateForm initialEmail={userProfileData.email} />
       {isEditing ? (
         <>
-          <InfoRow>
-            <Label>Email:</Label>
-            <TextField
-              name="email"
-              value={formData.email}
-              onChange={handleInputChange}
-              fullWidth
-            />
-          </InfoRow>
+          
           <InfoRow>
             <Label>Date of Birth:</Label>
             <TextField
@@ -241,10 +237,7 @@ const About = () => {
         </>
       ) : (
         <>
-          <InfoRow>
-            <Label>Email:</Label>
-            <Value>{userProfileData.email || "NIL"}</Value>
-          </InfoRow>
+          
           <InfoRow>
             <Label>Date of Birth:</Label>
             <Value>{new Date(userProfileData.dob).toLocaleDateString() || "NIL"}</Value>

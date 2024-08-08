@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-import { styled, Avatar, Box,Card, CardHeader, CardContent, CardActions,TextField, Button, IconButton,DialogActions, Dialog, DialogTitle, DialogContent, DialogContentText } from '@mui/material';
+import { styled, Avatar, Box,Card, CardHeader, CardContent, CardActions,TextField, Button, IconButton,DialogActions, Dialog, DialogTitle, DialogContent, DialogContentText, FormControl, FormControlLabel, Radio, RadioGroup, FormLabel } from '@mui/material';
 import { useTheme } from '@emotion/react';
 import { useSelector } from 'react-redux';
 import { Comment, Close } from '@mui/icons-material';
@@ -9,7 +9,13 @@ import { useDeleteAnswerMutation, useReportAnswerMutation } from '../../slices/a
 
 
 
-
+const reasons = [
+  'Inappropriate Content',
+  'Spam or Misleading',
+  'Harassment or Bullying',
+  'Hate Speech',
+  'Violation of Community Guidelines',
+];
 
 const CommentWrapper = styled('div')(({ theme }) => ({
   display: 'flex',
@@ -75,6 +81,16 @@ const CommentActions = styled('div')(({ theme }) => ({
     color: '#333',
   }));
 
+  const StyledFormControlLabel = styled(FormControlLabel)(({ theme, checked }) => ({
+    '& .MuiRadio-root': {
+      color: checked ? "#000000" : "#545454",
+      '& .MuiFormControlLabel-label': {
+    color: checked ?  "#000000" : "#666633",
+  },
+    },
+    
+  }));
+
 const SingleAnswer = ({answer, setErrorFlag, onRemoveAnswer}) => {
     const { author, text, time, likes, authorId } = answer;
     const theme = useTheme();
@@ -87,7 +103,8 @@ const SingleAnswer = ({answer, setErrorFlag, onRemoveAnswer}) => {
 //report answer
 
 const [openDialog, setOpenDialog] = useState(false);
-const [reason, setReason] = useState('');
+const [selectedReason, setSelectedReason] = useState('');
+const [customReason, setCustomReason] = useState('');
 
 const [reportAnswer] = useReportAnswerMutation();
 
@@ -99,20 +116,33 @@ const handleOpenDialog = () => {
 
   const handleCloseDialog = () => {
     setOpenDialog(false);
-    setReason(''); // Reset reason when closing the dialog
+    setCustomReason(''); // Reset reason when closing the dialog
+    setSelectedReason('')
     setErrorFlag('')
   };
 
+  const handleReasonChange = (event) => {
+    setSelectedReason(event.target.value);
+    if (event.target.value !== 'Custom') {
+      setCustomReason('');
+    }
+  };
+
+  const handleCustomReasonChange = (event) => {
+    setCustomReason(event.target.value);
+  }
 
   const handleSubmitReport = async () => {
-    if (reason.trim() === '' || reason.length > 100) {
+    const reportReason = selectedReason === 'Custom' ? customReason : selectedReason;
+
+    if (reportReason.trim() === '' || reportReason.length > 100) {
       setErrorFlag('Reason must be provided and less than 100 characters.');
       return;
     }
   
     try {
       await reportAnswer({
-        reason,
+        reason : reportReason,
         answer_source: 'user_profile',
         answer_id: answer._id
       }).unwrap();
@@ -183,16 +213,42 @@ const handleOpenDialog = () => {
                                           <DialogContentText>
                                               Please provide the reason for reporting this answer.
                                           </DialogContentText>
-                                          <TextField
-                                              autoFocus
-                                              margin="dense"
-                                              label="Reason"
-                                              type="text"
-                                              fullWidth
-                                              variant="outlined"
-                                              value={reason}
-                                              onChange={(e) => setReason(e.target.value)}
-                                          />
+                                          <FormControl component="fieldset">
+                    <FormLabel component="legend">Select a reason:</FormLabel>
+                    <RadioGroup
+                      value={selectedReason}
+                      onChange={handleReasonChange}
+                    >
+                      {reasons.map((reason) => (
+                        <StyledFormControlLabel
+                          key={reason}
+                          value={reason}
+                          control={<Radio />}
+                          label={reason}
+                          checked={selectedReason === reason}
+                        />
+                      ))}
+                      <StyledFormControlLabel
+                        value="Custom"
+                        control={<Radio />}
+                        label="Other (please specify)"
+                        checked={selectedReason === "Custom"}
+                      />
+                    </RadioGroup>
+                    {selectedReason === "Custom" && (
+                      <TextField
+                        autoFocus
+                        margin="dense"
+                        label="Reason"
+                        type="text"
+                        fullWidth
+                        variant="outlined"
+                        value={customReason}
+                        onChange={handleCustomReasonChange}
+                        sx={{ backgroundColor: "rgba(0, 0, 0, 0.05)" }}
+                      />
+                    )}
+                  </FormControl>
                                           </DialogContent>
                                           <DialogActions>
                                           <Button onClick={handleCloseDialog} color="success">
