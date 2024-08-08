@@ -33,8 +33,10 @@ services:
     image: nginx:alpine
     ports:
       - "80:80"
+      - "443:443"  # Expose HTTPS port
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./nginx/ssl:/etc/nginx/ssl  # Mount the SSL certificates
     deploy:
       replicas: 1
     networks:
